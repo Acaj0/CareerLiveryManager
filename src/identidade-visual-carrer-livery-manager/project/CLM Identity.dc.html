@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  body { margin: 0; background: #0A0D11; }
+  a { color: #35C6E8; text-decoration: none; }
+  a:hover { color: #7BDCF0; }
+</style>
+</helmet>
+
+<div style="font-family: Montserrat, Helvetica, sans-serif; background: #0A0D11; color: #E8ECF2; padding: 56px 40px 96px; min-height: 100vh; -webkit-font-smoothing: antialiased">
+  <div style="max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 72px">
+
+    <!-- masthead -->
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; flex-wrap: wrap; border-bottom: 1px solid #1C2229; padding-bottom: 28px">
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #35C6E8">Visual identity · v1</div>
+        <div style="font-size: 32px; font-weight: 700; letter-spacing: -0.01em">Career Livery Manager</div>
+        <div style="font-size: 14px; font-weight: 400; color: #8B95A5; max-width: 46ch; text-wrap: pretty">Brand mark, application icon and core visual language for the MSFS 2024 livery tool.</div>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8B95A5; border: 1px solid #232A34; border-radius: 4px; padding: 6px 10px">MONTSERRAT</div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #35C6E8; border: 1px solid #1B4A57; background: #0E1A1F; border-radius: 4px; padding: 6px 10px">#35C6E8</div>
+      </div>
+    </div>
+
+    <!-- primary lockup -->
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #6C7787">01 — Primary lockup</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px">
+
+        <div style="background: #11161C; border: 1px solid #1F262E; border-radius: 10px; padding: 48px 40px; display: flex; align-items: center; gap: 22px">
+          <svg width="72" height="72" viewBox="0 0 100 100" aria-label="CLM mark">
+            <rect x="1" y="1" width="98" height="98" rx="22" fill="#0C1116" stroke="#242C36" stroke-width="1.5"></rect>
+            <polygon points="50,16 50,64 15,82" fill="#35C6E8"></polygon>
+            <polygon points="50,16 85,82 50,64" fill="#1B6E85"></polygon>
+            <rect x="30" y="86" width="40" height="4" rx="2" fill="#35C6E8" opacity="0.55"></rect>
+          </svg>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="font-size: 22px; font-weight: 700; letter-spacing: -0.005em; line-height: 1.15">Career Livery<br />Manager</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.24em; color: #8B95A5">MSFS 2024</div>
+          </div>
+        </div>
+
+        <div style="background: #E8ECF2; border: 1px solid #E8ECF2; border-radius: 10px; padding: 48px 40px; display: flex; align-items: center; gap: 22px">
+          <svg width="72" height="72" viewBox="0 0 100 100" aria-label="CLM mark, light background">
+            <rect x="1" y="1" width="98" height="98" rx="22" fill="#0C1116"></rect>
+            <polygon points="50,16 50,64 15,82" fill="#35C6E8"></polygon>
+            <polygon points="50,16 85,82 50,64" fill="#1B6E85"></polygon>
+            <rect x="30" y="86" width="40" height="4" rx="2" fill="#35C6E8" opacity="0.55"></rect>
+          </svg>
+          <div style="display: flex; flex-direction: column; gap: 4px; color: #0C1116">
+            <div style="font-size: 22px; font-weight: 700; letter-spacing: -0.005em; line-height: 1.15">Career Livery<br />Manager</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.24em; color: #5B6674">MSFS 2024</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px">
+        <div style="background: #11161C; border: 1px solid #1F262E; border-radius: 10px; padding: 32px; display: flex; flex-direction: column; align-items: center; gap: 18px">
+          <div style="display: flex; align-items: center; gap: 12px">
+            <svg width="34" height="34" viewBox="0 0 100 100">
+              <polygon points="50,16 50,64 15,82" fill="#35C6E8"></polygon>
+              <polygon points="50,16 85,82 50,64" fill="#1B6E85"></polygon>
+            </svg>
+            <div style="font-size: 20px; font-weight: 700; letter-spacing: 0.02em">CLM</div>
+          </div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.16em; color: #6C7787">HORIZONTAL / COMPACT</div>
+        </div>
+        <div style="background: #11161C; border: 1px solid #1F262E; border-radius: 10px; padding: 32px; display: flex; flex-direction: column; align-items: center; gap: 18px">
+          <svg width="56" height="56" viewBox="0 0 100 100">
+            <polygon points="50,16 50,64 15,82" fill="#E8ECF2"></polygon>
+            <polygon points="50,16 85,82 50,64" fill="#6C7787"></polygon>
+            <rect x="30" y="86" width="40" height="4" rx="2" fill="#E8ECF2" opacity="0.6"></rect>
+          </svg>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.16em; color: #6C7787">MONOCHROME</div>
+        </div>
+        <div style="background: #11161C; border: 1px solid #1F262E; border-radius: 10px; padding: 32px; display: flex; flex-direction: column; align-items: center; gap: 18px">
+          <svg width="56" height="56" viewBox="0 0 100 100">
+            <rect x="1" y="1" width="98" height="98" rx="22" fill="#35C6E8"></rect>
+            <polygon points="50,16 50,64 15,82" fill="#0A2A33"></polygon>
+            <polygon points="50,16 85,82 50,64" fill="#0A2A33" opacity="0.55"></polygon>
+          </svg>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.16em; color: #6C7787">KNOCKOUT / ACCENT</div>
+        </div>
+      </div>
+      <div style="font-size: 13px; color: #6C7787; max-width: 70ch; text-wrap: pretty">The mark is a folded delta — two planes of the same shape, one lit and one shaded: an abstract airframe read as two paint surfaces. The stripe below it is the livery. Clear space equals the width of one delta half on every side.</div>
+    </div>
+
+    <!-- app icon -->
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #6C7787">02 — Application icon (.exe / favicon / avatar)</div>
+      <div style="background: #11161C; border: 1px solid #1F262E; border-radius: 10px; padding: 40px; display: flex; align-items: flex-end; gap: 40px; flex-wrap: wrap">
+        <div style="display: flex; flex-direction: column; gap: 12px; align-items: center">
+          <svg width="128" height="128" viewBox="0 0 100 100">
+            <rect x="0" y="0" width="100" height="100" rx="22" fill="#0F151B"></rect>
+            <rect x="0.75" y="0.75" width="98.5" height="98.5" rx="21.5" fill="none" stroke="#2A333E" stroke-width="1.5"></rect>
+            <polygon points="50,16 50,64 15,82" fill="#35C6E8"></polygon>
+            <polygon points="50,16 85,82 50,64" fill="#1B6E85"></polygon>
+            <rect x="30" y="86" width="40" height="4" rx="2" fill="#35C6E8" opacity="0.55"></rect>
+          </svg>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6C7787">256</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px; align-items: center">
+          <svg width="64" height="64" viewBox="0 0 100 100">
+            <rect x="0" y="0" width="100" height="100" rx="22" fill="#0F151B" stroke="#2A333E" stroke-width="1.5"></rect>
+            <polygon points="50,16 50,64 15,82" fill="#35C6E8"></polygon>
+            <polygon points="50,16 85,82 50,64" fill="#1B6E85"></polygon>
+            <rect x="30" y="86" width="40" height="4" rx="2" fill="#35C6E8" opacity="0.55"></rect>
+          </svg>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6C7787">64</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px; align-items: center">
+          <svg width="48" height="48" viewBox="0 0 100 100">
+            <rect x="0" y="0" width="100" height="100" rx="20" fill="#0F151B" stroke="#2A333E" stroke-width="2"></rect>
+            <polygon points="50,18 50,64 17,80" fill="#35C6E8"></polygon>
+            <polygon points="50,18 83,80 50,64" fill="#1B6E85"></polygon>
+          </svg>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6C7787">48</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px; align-items: center">
+          <svg width="32" height="32" viewBox="0 0 100 100">
+            <rect x="0" y="0" width="100" height="100" rx="18" fill="#0F151B"></rect>
+            <polygon points="50,20 50,66 18,80" fill="#35C6E8"></polygon>
+            <polygon points="50,20 82,80 50,66" fill="#1B6E85"></polygon>
+          </svg>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6C7787">32</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px; align-items: center">
+          <svg width="16" height="16" viewBox="0 0 100 100">
+            <rect x="0" y="0" width="100" height="100" rx="14" fill="#0F151B"></rect>
+            <polygon points="50,22 50,68 20,80" fill="#35C6E8"></polygon>
+            <polygon points="50,22 80,80 50,68" fill="#2A8AA5"></polygon>
+          </svg>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6C7787">16</div>
+        </div>
+        <div style="font-size: 13px; color: #6C7787; max-width: 30ch; text-wrap: pretty; align-self: center">Below 48px the stripe and the outline are dropped and the delta grows — the silhouette stays legible at taskbar size.</div>
+      </div>
+
+      <sc-if value="{{ showTaskbarPreview }}" hint-placeholder-val="{{ true }}">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px">
+        <div style="background: #11161C; border: 1px solid #1F262E; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.16em; color: #6C7787">TASKBAR</div>
+          <div style="background: #0B0F13; border: 1px solid #1A2027; border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; gap: 18px">
+            <div style="width: 22px; height: 22px; border-radius: 5px; background: #1A2027"></div>
+            <div style="width: 22px; height: 22px; border-radius: 5px; background: #1A2027"></div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 5px">
+              <svg width="24" height="24" viewBox="0 0 100 100">
+                <rect x="0" y="0" width="100" height="100" rx="18" fill="#0F151B"></rect>
+                <polygon points="50,20 50,66 18,80" fill="#35C6E8"></polygon>
+                <polygon points="50,20 82,80 50,66" fill="#1B6E85"></polygon>
+              </svg>
+              <div style="width: 16px; height: 2px; border-radius: 1px; background: #35C6E8"></div>
+            </div>
+            <div style="width: 22px; height: 22px; border-radius: 5px; background: #1A2027"></div>
+          </div>
+        </div>
+        <div style="background: #11161C; border: 1px solid #1F262E; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.16em; color: #6C7787">WINDOW TITLE BAR</div>
+          <div style="background: #0F141A; border: 1px solid #1A2027; border-radius: 8px 8px 4px 4px; padding: 9px 12px; display: flex; align-items: center; gap: 10px">
+            <svg width="16" height="16" viewBox="0 0 100 100">
+              <polygon points="50,22 50,68 20,80" fill="#35C6E8"></polygon>
+              <polygon points="50,22 80,80 50,68" fill="#2A8AA5"></polygon>
+            </svg>
+            <div style="font-size: 12px; font-weight: 500; color: #C6CEDA">Career Livery Manager</div>
+            <div style="flex: 1"></div>
+            <div style="display: flex; gap: 14px; color: #6C7787; font-size: 11px; font-family: 'JetBrains Mono', monospace">— □ ×</div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+    </div>
+
+    <!-- monogram variant -->
+    <sc-if value="{{ showMonogramVariant }}" hint-placeholder-val="{{ true }}">
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #6C7787">03 — Monogram (secondary, for text-only contexts)</div>
+      <div style="background: #11161C; border: 1px solid #1F262E; border-radius: 10px; padding: 40px; display: flex; align-items: center; gap: 40px; flex-wrap: wrap">
+        <svg width="96" height="96" viewBox="0 0 100 100">
+          <rect x="0.75" y="0.75" width="98.5" height="98.5" rx="21.5" fill="#0F151B" stroke="#2A333E" stroke-width="1.5"></rect>
+          <text x="50" y="58" text-anchor="middle" font-family="Montserrat, sans-serif" font-size="30" font-weight="700" letter-spacing="1" fill="#E8ECF2">CLM</text>
+          <rect x="28" y="70" width="44" height="4" rx="2" fill="#35C6E8"></rect>
+        </svg>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <div style="font-size: 15px; font-weight: 600">Use the monogram only where the delta cannot be reproduced</div>
+          <div style="font-size: 13px; color: #6C7787; max-width: 52ch; text-wrap: pretty">Forum signatures, single-colour print, shortcut labels. The delta tile remains the primary icon everywhere else — including Flightsim.to thumbnails and the GitHub avatar.</div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- palette -->
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #6C7787">04 — Colour tokens</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px">
+        <div style="border: 1px solid #1F262E; border-radius: 8px; overflow: hidden">
+          <div style="height: 76px; background: #0A0D11"></div>
+          <div style="padding: 12px; background: #11161C; display: flex; flex-direction: column; gap: 3px">
+            <div style="font-size: 12px; font-weight: 600">bg / canvas</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6C7787">#0A0D11</div>
+          </div>
+        </div>
+        <div style="border: 1px solid #1F262E; border-radius: 8px; overflow: hidden">
+          <div style="height: 76px; background: #11161C"></div>
+          <div style="padding: 12px; background: #11161C; display: flex; flex-direction: column; gap: 3px">
+            <div style="font-size: 12px; font-weight: 600">surface</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6C7787">#11161C</div>
+          </div>
+        </div>
+        <div style="border: 1px solid #1F262E; border-radius: 8px; overflow: hidden">
+          <div style="height: 76px; background: #1F262E"></div>
+          <div style="padding: 12px; background: #11161C; display: flex; flex-direction: column; gap: 3px">
+            <div style="font-size: 12px; font-weight: 600">border</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6C7787">#1F262E</div>
+          </div>
+        </div>
+        <div style="border: 1px solid #1F262E; border-radius: 8px; overflow: hidden">
+          <div style="height: 76px; background: #35C6E8"></div>
+          <div style="padding: 12px; background: #11161C; display: flex; flex-direction: column; gap: 3px">
+            <div style="font-size: 12px; font-weight: 600">accent</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6C7787">#35C6E8</div>
+          </div>
+        </div>
+        <div style="border: 1px solid #1F262E; border-radius: 8px; overflow: hidden">
+          <div style="height: 76px; background: #1B6E85"></div>
+          <div style="padding: 12px; background: #11161C; display: flex; flex-direction: column; gap: 3px">
+            <div style="font-size: 12px; font-weight: 600">accent / deep</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6C7787">#1B6E85</div>
+          </div>
+        </div>
+        <div style="border: 1px solid #1F262E; border-radius: 8px; overflow: hidden">
+          <div style="height: 76px; background: #E8ECF2"></div>
+          <div style="padding: 12px; background: #11161C; display: flex; flex-direction: column; gap: 3px">
+            <div style="font-size: 12px; font-weight: 600">text</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6C7787">#E8ECF2</div>
+          </div>
+        </div>
+        <div style="border: 1px solid #1F262E; border-radius: 8px; overflow: hidden">
+          <div style="height: 76px; background: #8B95A5"></div>
+          <div style="padding: 12px; background: #11161C; display: flex; flex-direction: column; gap: 3px">
+            <div style="font-size: 12px; font-weight: 600">text / muted</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6C7787">#8B95A5</div>
+          </div>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px">
+        <div style="border: 1px solid #1F262E; border-radius: 8px; overflow: hidden">
+          <div style="height: 44px; background: #3FBF8F"></div>
+          <div style="padding: 10px 12px; background: #11161C; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8B95A5">success #3FBF8F</div>
+        </div>
+        <div style="border: 1px solid #1F262E; border-radius: 8px; overflow: hidden">
+          <div style="height: 44px; background: #D9A03C"></div>
+          <div style="padding: 10px 12px; background: #11161C; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8B95A5">warning #D9A03C</div>
+        </div>
+        <div style="border: 1px solid #1F262E; border-radius: 8px; overflow: hidden">
+          <div style="height: 44px; background: #D95C5C"></div>
+          <div style="padding: 10px 12px; background: #11161C; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8B95A5">error #D95C5C</div>
+        </div>
+        <div style="border: 1px solid #1F262E; border-radius: 8px; overflow: hidden">
+          <div style="height: 44px; background: #6C7787"></div>
+          <div style="padding: 10px 12px; background: #11161C; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8B95A5">info #6C7787</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- typography -->
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #6C7787">05 — Typography</div>
+      <div style="background: #11161C; border: 1px solid #1F262E; border-radius: 10px; padding: 36px 40px; display: flex; flex-direction: column; gap: 26px">
+        <div style="display: flex; align-items: baseline; gap: 24px; flex-wrap: wrap">
+          <div style="font-size: 30px; font-weight: 700; letter-spacing: -0.01em">Select Aircraft</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6C7787">Bold 700 · 30/36 · screen title</div>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 24px; flex-wrap: wrap">
+          <div style="font-size: 20px; font-weight: 600">Citation Longitude</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6C7787">SemiBold 600 · 20/26 · card title, buttons</div>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 24px; flex-wrap: wrap">
+          <div style="font-size: 13px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #8B95A5">Installation method</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6C7787">Medium 500 · 13 · label, +8% tracking</div>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 24px; flex-wrap: wrap">
+          <div style="font-size: 14px; font-weight: 400; color: #C6CEDA; max-width: 46ch">Official MSFS packages are never modified. Everything happens inside your Community folder.</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6C7787">Regular 400 · 14/22 · body</div>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 24px; flex-wrap: wrap">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #35C6E8">…\Community\clm-longitude-netjets\</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6C7787">JetBrains Mono · paths, registrations, versions</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- status + ui atoms -->
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #6C7787">06 — Status system &amp; controls</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px">
+        <div style="background: #11161C; border: 1px solid #1F262E; border-radius: 10px; padding: 28px; display: flex; flex-direction: column; gap: 14px">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <svg width="18" height="18" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="#3FBF8F" stroke-width="1.5"></circle><path d="M6 10.5l2.6 2.5L14 7.5" fill="none" stroke="#3FBF8F" stroke-width="1.8" stroke-linecap="round"></path></svg>
+            <div style="font-size: 14px; font-weight: 500; color: #E8ECF2">MSFS 2024 detected</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px">
+            <svg width="18" height="18" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="#D9A03C" stroke-width="1.5"></circle><rect x="9.1" y="5" width="1.8" height="7" rx="0.9" fill="#D9A03C"></rect><rect x="9.1" y="13.2" width="1.8" height="1.8" rx="0.9" fill="#D9A03C"></rect></svg>
+            <div style="font-size: 14px; font-weight: 500; color: #E8ECF2">Livery has no registration set</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px">
+            <svg width="18" height="18" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="#D95C5C" stroke-width="1.5"></circle><path d="M6.8 6.8l6.4 6.4M13.2 6.8l-6.4 6.4" stroke="#D95C5C" stroke-width="1.8" stroke-linecap="round"></path></svg>
+            <div style="font-size: 14px; font-weight: 500; color: #E8ECF2">Community folder not found</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px">
+            <svg width="18" height="18" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="#6C7787" stroke-width="1.5"></circle><rect x="9.1" y="8.4" width="1.8" height="6.4" rx="0.9" fill="#6C7787"></rect><rect x="9.1" y="5.2" width="1.8" height="1.8" rx="0.9" fill="#6C7787"></rect></svg>
+            <div style="font-size: 14px; font-weight: 500; color: #E8ECF2">Dynamic Registration available</div>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #3FBF8F; border: 1px solid #23503F; background: #0E1A16; border-radius: 4px; padding: 5px 9px">COMMUNITY PACKAGE</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8B95A5; border: 1px solid #232A34; border-radius: 4px; padding: 5px 9px">OFFICIAL NOT MODIFIED</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #35C6E8; border: 1px solid #1B4A57; background: #0E1A1F; border-radius: 4px; padding: 5px 9px">DYNAMIC REG</div>
+          </div>
+        </div>
+
+        <div style="background: #11161C; border: 1px solid #1F262E; border-radius: 10px; padding: 28px; display: flex; flex-direction: column; gap: 18px">
+          <div style="display: flex; gap: 10px; flex-wrap: wrap">
+            <div style="background: #35C6E8; color: #06181E; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; padding: 12px 20px; border-radius: 6px; cursor: pointer; transition: background 120ms ease" style-hover="background: #55D5F2">INSTALL LIVERY</div>
+            <div style="border: 1px solid #2A333E; color: #C6CEDA; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; padding: 12px 20px; border-radius: 6px; cursor: pointer; transition: border-color 120ms ease, color 120ms ease" style-hover="border-color: #3C4854; color: #E8ECF2">CANCEL</div>
+            <div style="border: 1px solid #47262A; color: #D95C5C; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; padding: 12px 20px; border-radius: 6px; cursor: pointer; transition: background 120ms ease" style-hover="background: #1A1012">REMOVE</div>
+          </div>
+          <div style="height: 1px; background: #1C2229"></div>
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 500; color: #8B95A5">
+              <div>Configuring livery.cfg</div>
+              <div style="font-family: 'JetBrains Mono', monospace; color: #35C6E8">64%</div>
+            </div>
+            <div style="height: 4px; border-radius: 2px; background: #1C2229; overflow: hidden">
+              <div style="width: 64%; height: 100%; background: #35C6E8"></div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px">
+            <div style="display: flex; gap: 10px; align-items: center; color: #8B95A5"><svg width="14" height="14" viewBox="0 0 20 20"><path d="M5 10.5l3 3 7-7" fill="none" stroke="#3FBF8F" stroke-width="2.2" stroke-linecap="round"></path></svg>Aircraft detected</div>
+            <div style="display: flex; gap: 10px; align-items: center; color: #8B95A5"><svg width="14" height="14" viewBox="0 0 20 20"><path d="M5 10.5l3 3 7-7" fill="none" stroke="#3FBF8F" stroke-width="2.2" stroke-linecap="round"></path></svg>Community package created</div>
+            <div style="display: flex; gap: 10px; align-items: center; color: #E8ECF2; font-weight: 500"><svg width="14" height="14" viewBox="0 0 20 20"><circle cx="10" cy="10" r="4" fill="#35C6E8"></circle></svg>Generating manifest.json</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- README hero -->
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #6C7787">07 — GitHub / Flightsim.to hero</div>
+      <div style="border: 1px solid #1F262E; border-radius: 10px; background: #0C1116; padding: 72px 56px; display: flex; flex-direction: column; align-items: center; gap: 26px; text-align: center">
+        <svg width="88" height="88" viewBox="0 0 100 100">
+          <rect x="0.75" y="0.75" width="98.5" height="98.5" rx="21.5" fill="#0F151B" stroke="#2A333E" stroke-width="1.5"></rect>
+          <polygon points="50,16 50,64 15,82" fill="#35C6E8"></polygon>
+          <polygon points="50,16 85,82 50,64" fill="#1B6E85"></polygon>
+          <rect x="30" y="86" width="40" height="4" rx="2" fill="#35C6E8" opacity="0.55"></rect>
+        </svg>
+        <div style="display: flex; flex-direction: column; gap: 12px; align-items: center">
+          <div style="font-size: 34px; font-weight: 700; letter-spacing: -0.015em">Career Livery Manager</div>
+          <div style="font-size: 17px; font-weight: 500; color: #C6CEDA; max-width: 40ch; text-wrap: pretty">Use your custom liveries in MSFS 2024 Career Mode.</div>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #35C6E8; border: 1px solid #1B4A57; background: #0E1A1F; border-radius: 4px; padding: 6px 10px">MSFS 2024</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #3FBF8F; border: 1px solid #23503F; background: #0E1A16; border-radius: 4px; padding: 6px 10px">FREE &amp; OPEN SOURCE</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8B95A5; border: 1px solid #232A34; border-radius: 4px; padding: 6px 10px">WINDOWS</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8B95A5; border: 1px solid #232A34; border-radius: 4px; padding: 6px 10px">COMMUNITY FOLDER ONLY</div>
+        </div>
+      </div>
+    </div>
+
+    <sc-if value="{{ showUsageNotes }}" hint-placeholder-val="{{ true }}">
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #6C7787">08 — Rules</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px">
+        <div style="background: #11161C; border: 1px solid #1F262E; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+          <div style="font-size: 14px; font-weight: 600; color: #3FBF8F">Do</div>
+          <div style="font-size: 13px; color: #8B95A5; line-height: 1.7; text-wrap: pretty">Keep the accent for actions, selection, progress and active state only. Use one surface level per screen. Radius 6px for controls, 10px for surfaces, 22% for the icon tile. Shadows: none, or a single 1px border.</div>
+        </div>
+        <div style="background: #11161C; border: 1px solid #1F262E; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+          <div style="font-size: 14px; font-weight: 600; color: #D95C5C">Don't</div>
+          <div style="font-size: 13px; color: #8B95A5; line-height: 1.7; text-wrap: pretty">No gradients on the mark, no glow, no rotation, no outline versions of the delta, no accent-coloured body text, no second typeface beyond the mono used for paths and codes.</div>
+        </div>
+        <div style="background: #11161C; border: 1px solid #1F262E; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+          <div style="font-size: 14px; font-weight: 600; color: #E8ECF2">Assets to cut</div>
+          <div style="font-size: 13px; color: #8B95A5; line-height: 1.7; text-wrap: pretty">icon.ico (16/24/32/48/64/128/256), icon.png 512, avatar 460, hero 1280×640, favicon 32. All from the same source SVG — ask and I'll export them.</div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showTaskbarPreview&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sections&quot;},&quot;showMonogramVariant&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sections&quot;},&quot;showUsageNotes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sections&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      showTaskbarPreview: this.props.showTaskbarPreview ?? true,
+      showMonogramVariant: this.props.showMonogramVariant ?? true,
+      showUsageNotes: this.props.showUsageNotes ?? true,
+    };
+  }
+}
+</script>
+</body>
+</html>

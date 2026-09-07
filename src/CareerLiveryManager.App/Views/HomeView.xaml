@@ -1,0 +1,62 @@
+<UserControl x:Class="CareerLiveryManager.App.Views.HomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="500"
+             Background="{StaticResource CanvasBrush}">
+    <Grid Margin="48">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+            <!-- Delta mark, drawn to match the brand SVG exactly -->
+            <Border Width="88" Height="88" Background="#0F151B" CornerRadius="19" BorderBrush="{StaticResource BorderStrongBrush}" BorderThickness="1.5"
+                    HorizontalAlignment="Center" Margin="0,0,0,20">
+                <Viewbox Width="60" Height="60">
+                    <Canvas Width="100" Height="100">
+                        <Polygon Points="50,16 50,64 15,82" Fill="{StaticResource AccentBrush}"/>
+                        <Polygon Points="50,16 85,82 50,64" Fill="{StaticResource AccentDeepBrush}"/>
+                        <Rectangle Canvas.Left="30" Canvas.Top="86" Width="40" Height="4" RadiusX="2" RadiusY="2" Fill="{StaticResource AccentBrush}" Opacity="0.55"/>
+                    </Canvas>
+                </Viewbox>
+            </Border>
+
+            <TextBlock Text="Career Livery Manager" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{StaticResource TextBrush}"/>
+            <TextBlock Text="Use your custom liveries in MSFS 2024 Career Mode."
+                       FontSize="15" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,10,0,20" TextWrapping="Wrap"
+                       TextAlignment="Center" MaxWidth="440"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,32">
+                <Border Style="{StaticResource Tag}" BorderBrush="#1B4A57" Background="#0E1A1F" Margin="0,0,8,0">
+                    <TextBlock Text="MSFS 2024" Style="{StaticResource MonoText}" FontSize="10"/>
+                </Border>
+                <Border Style="{StaticResource Tag}" BorderBrush="#23503F" Background="#0E1A16" Margin="0,0,8,0">
+                    <TextBlock Text="FREE &amp; OPEN SOURCE" FontFamily="{StaticResource MonoFont}" FontSize="10" Foreground="{StaticResource SuccessBrush}"/>
+                </Border>
+                <Border Style="{StaticResource Tag}" BorderBrush="{StaticResource BorderStrongBrush}">
+                    <TextBlock Text="WINDOWS" FontFamily="{StaticResource MonoFont}" FontSize="10" Foreground="{StaticResource TextMutedBrush}"/>
+                </Border>
+            </StackPanel>
+
+            <Button Content="GET STARTED" Padding="32,14" FontSize="14" HorizontalAlignment="Center" Command="{Binding GetStartedCommand}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" HorizontalAlignment="Center" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}">
+                <Run Text="Made by "/>
+                <Hyperlink NavigateUri="{Binding AuthorGitHubUrl}" RequestNavigate="Hyperlink_RequestNavigate" Foreground="{StaticResource AccentBrush}">
+                    <Run Text="Acaj0"/>
+                </Hyperlink>
+            </TextBlock>
+            <TextBlock Text="  •  " Foreground="{StaticResource BorderStrongBrush}" VerticalAlignment="Center"/>
+            <Button Content="☕ Buy me a coffee" Style="{StaticResource SecondaryButton}" Padding="14,8"
+                    Command="{Binding OpenBuyMeACoffeeCommand}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
