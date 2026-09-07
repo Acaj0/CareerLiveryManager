@@ -14,9 +14,9 @@
 
 ## What is this?
 
-Microsoft Flight Simulator 2024's Career Mode does not currently let you choose which livery your owned aircraft uses — the game always defaults to the same paint job, no matter which liveries you have installed.
+Microsoft Flight Simulator 2024's Career Mode does not currently let you choose which livery your owned aircraft uses. The game always defaults to the same paint job, no matter which liveries you have installed.
 
-**Career Livery Manager** works around this by generating a small Community package that registers your chosen livery under the aircraft's official vendor namespace, using an ordering trick the game happens to respect. It never touches your Official content and never edits any third-party livery package in place — everything it creates lives in its own dedicated folder inside your Community folder, and can be removed with one click.
+**Career Livery Manager** works around this by generating a small Community package that registers your chosen livery under the aircraft's official vendor namespace, using an ordering trick the game happens to respect. It never touches your Official content and never edits any third-party livery package in place. Everything it creates lives in its own dedicated folder inside your Community folder, and can be removed with one click.
 
 ## Features
 
@@ -27,14 +27,47 @@ Microsoft Flight Simulator 2024's Career Mode does not currently let you choose 
 - Tracks everything it installs so you can remove a package cleanly later.
 - Works with both the **Steam** and **Microsoft Store (OneStore)** builds of MSFS 2024.
 
+Prefer doing this by hand, or want to understand the mechanism first? See the [manual step-by-step guide](docs/MANUAL_GUIDE.md).
+
 ## How it works, in short
 
 1. You point the app at your `Official2024` folder and your `Community` folder (one-time setup).
 2. You pick an aircraft and a livery folder.
-3. The app copies that livery into a new Community package, named so it wins the ordering the game already uses internally, and — if the livery has a Dynamic Registration variant — wires the fallback texture path correctly.
+3. The app copies that livery into a new Community package, named so it wins the ordering the game already uses internally. If the livery has a Dynamic Registration variant, it wires the fallback texture path correctly.
 4. Restart MSFS and the livery shows up on your Career aircraft.
 
 Official game files are never modified. Community folder only.
+
+## Tested aircraft
+
+This is just what I've personally tested. It does not mean other aircraft don't work; most modern aircraft that ship liveries with a `livery.cfg` should work the same way.
+
+**Airbus**
+- A310-300
+- A330
+- A400M Atlas
+
+**Beechcraft**
+- Bonanza G36
+- King Air 350i
+
+**Boeing**
+- 737 MAX
+
+**Cessna / Textron Aviation**
+- 185F Skywagon
+- 400 Corvalis TT
+- Citation CJ4
+- Citation Longitude
+
+**Cirrus**
+- Vision Jet G2 (SF50)
+
+**Honda Aircraft Company**
+- HondaJet: tested, **not supported** (its liveries don't use `livery.cfg`, the app correctly flags it)
+
+**Pilatus**
+- PC-24
 
 ## Getting started
 
@@ -43,15 +76,15 @@ Official game files are never modified. Community folder only.
 3. On first launch, point it at your `Official2024\Steam` (or `Official2024\OneStore`) folder and your `Community` folder.
 4. Pick an aircraft, pick a livery folder, apply.
 
-> Windows may show a SmartScreen warning the first time you run the `.exe`, since it isn't code-signed. This is expected for a small open-source tool — click "More info" → "Run anyway".
+> Windows may show a SmartScreen warning the first time you run the `.exe`, since it isn't code-signed. This is expected for a small open-source tool. Click "More info" then "Run anyway".
 
 ## Building from source
 
 Requires the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).
 
 ```bash
-git clone https://github.com/Acaj0/career-livery-manager.git
-cd career-livery-manager
+git clone https://github.com/Acaj0/CareerLiveryManager.git
+cd CareerLiveryManager
 dotnet build
 dotnet run --project src/CareerLiveryManager.App
 ```
@@ -64,12 +97,12 @@ dotnet publish src/CareerLiveryManager.App -c Release -r win-x64 --self-containe
 
 ## Project structure
 
-- `src/CareerLiveryManager.Core` — all file/folder logic (aircraft detection, livery packaging), no UI, testable on its own.
-- `src/CareerLiveryManager.App` — WPF UI (MVVM, CommunityToolkit.Mvvm).
+- `src/CareerLiveryManager.Core`: all file/folder logic (aircraft detection, livery packaging), no UI, testable on its own.
+- `src/CareerLiveryManager.App`: WPF UI (MVVM, CommunityToolkit.Mvvm).
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).
 
 Montserrat and JetBrains Mono are bundled under the [SIL Open Font License](src/CareerLiveryManager.App/Resources/Fonts/OFL.txt).
 

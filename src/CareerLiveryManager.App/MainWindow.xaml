@@ -17,6 +17,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Persistent header: hidden only on the Home screen -->
@@ -61,5 +62,16 @@
         </Border>
 
         <ContentControl Grid.Row="1" Content="{Binding CurrentViewModel}"/>
+
+        <!-- Persistent footer: hidden only on the Home screen -->
+        <Border Grid.Row="2" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="0,1,0,0" Padding="24,10"
+                Visibility="{Binding ShowHeader, Converter={StaticResource BoolToVisibility}}">
+            <TextBlock HorizontalAlignment="Right" Foreground="{StaticResource TextMutedBrush}" FontSize="12">
+                <Run Text="Need help? "/>
+                <Hyperlink NavigateUri="https://github.com/Acaj0/CareerLiveryManager/issues" RequestNavigate="Hyperlink_RequestNavigate" Foreground="{StaticResource AccentBrush}">
+                    <Run Text="Report an issue on GitHub"/>
+                </Hyperlink>
+            </TextBlock>
+        </Border>
     </Grid>
 </Window>

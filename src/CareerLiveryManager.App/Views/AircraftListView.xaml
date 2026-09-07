@@ -23,7 +23,8 @@
 
         <TextBlock Grid.Row="2" Text="{Binding StatusMessage}" Foreground="{StaticResource TextMutedBrush}" Visibility="{Binding StatusMessage, Converter={StaticResource StringToVisibility}}"/>
 
-        <ListBox Grid.Row="2" ItemsSource="{Binding Aircraft}" BorderThickness="0" Background="Transparent">
+        <ListBox Grid.Row="2" ItemsSource="{Binding Aircraft}" BorderThickness="0" Background="Transparent"
+                 ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="False">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
                     <Setter Property="Background" Value="Transparent"/>

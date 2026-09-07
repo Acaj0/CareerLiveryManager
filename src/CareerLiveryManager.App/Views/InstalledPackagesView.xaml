@@ -26,7 +26,8 @@
         <TextBlock Grid.Row="1" Text="{Binding StatusMessage}" Foreground="{StaticResource ErrorBrush}" TextWrapping="Wrap" Margin="0,0,0,16"
                    Visibility="{Binding StatusMessage, Converter={StaticResource StringToVisibility}}"/>
 
-        <ListBox Grid.Row="2" ItemsSource="{Binding Packages}" BorderThickness="0" Background="Transparent">
+        <ListBox Grid.Row="2" ItemsSource="{Binding Packages}" BorderThickness="0" Background="Transparent"
+                 ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="False">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
                     <Setter Property="Background" Value="Transparent"/>
