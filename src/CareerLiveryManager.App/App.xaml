@@ -15,6 +15,7 @@
         <conv:CountToVisibilityConverter x:Key="CountToVisibility"/>
         <conv:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
         <conv:FilePathToImageSourceConverter x:Key="FilePathToImage"/>
+        <conv:InverseBoolConverter x:Key="InverseBool"/>
 
         <FontFamily x:Key="AppFont">./Resources/Fonts/#Montserrat</FontFamily>
         <FontFamily x:Key="MonoFont">./Resources/Fonts/#JetBrains Mono</FontFamily>

@@ -16,6 +16,7 @@
     <Grid Background="{StaticResource CanvasBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -55,23 +56,56 @@
                         <ContextMenu Placement="Bottom">
                             <MenuItem Header="Open logs" Command="{Binding OpenLogsCommand}"/>
                             <MenuItem Header="Change folders" Command="{Binding ChangeFoldersCommand}"/>
+                            <Separator/>
+                            <MenuItem Header="Check for updates automatically" IsCheckable="True"
+                                      IsChecked="{Binding CheckForUpdatesEnabled, Mode=OneWay}"
+                                      Command="{Binding ToggleCheckForUpdatesCommand}"/>
                         </ContextMenu>
                     </Button.ContextMenu>
                 </Button>
             </Grid>
         </Border>
 
-        <ContentControl Grid.Row="1" Content="{Binding CurrentViewModel}"/>
+        <!-- Update available banner: shown app-wide (including Home) once a check finds a newer release -->
+        <Border Grid.Row="1" Background="#14202B" BorderBrush="{StaticResource AccentBrush}" BorderThickness="0,0,0,1" Padding="24,10"
+                Visibility="{Binding UpdateBannerVisible, Converter={StaticResource BoolToVisibility}}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding UpdateBannerText}" FontSize="12" TextWrapping="Wrap"/>
+                    <ProgressBar Height="4" Margin="0,6,0,0" Minimum="0" Maximum="100" Value="{Binding UpdateDownloadProgress, Mode=OneWay}"
+                                 Visibility="{Binding IsDownloadingUpdate, Converter={StaticResource BoolToVisibility}}"/>
+                </StackPanel>
+
+                <Button Grid.Column="1" Content="Update Now" Style="{StaticResource SecondaryButton}" Padding="14,6" Margin="10,0,0,0"
+                        Command="{Binding UpdateNowCommand}" IsEnabled="{Binding IsDownloadingUpdate, Converter={StaticResource InverseBool}}"/>
+
+                <Button Grid.Column="2" Content="Later" Style="{StaticResource SecondaryButton}" Padding="14,6" Margin="10,0,0,0"
+                        Command="{Binding DismissUpdateBannerCommand}" IsEnabled="{Binding IsDownloadingUpdate, Converter={StaticResource InverseBool}}"/>
+            </Grid>
+        </Border>
+
+        <ContentControl Grid.Row="2" Content="{Binding CurrentViewModel}"/>
 
         <!-- Persistent footer: hidden only on the Home screen -->
-        <Border Grid.Row="2" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="0,1,0,0" Padding="24,10"
+        <Border Grid.Row="3" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="0,1,0,0" Padding="24,10"
                 Visibility="{Binding ShowHeader, Converter={StaticResource BoolToVisibility}}">
-            <TextBlock HorizontalAlignment="Right" Foreground="{StaticResource TextMutedBrush}" FontSize="12">
-                <Run Text="Need help? "/>
-                <Hyperlink NavigateUri="https://github.com/Acaj0/CareerLiveryManager/issues" RequestNavigate="Hyperlink_RequestNavigate" Foreground="{StaticResource AccentBrush}">
-                    <Run Text="Report an issue on GitHub"/>
-                </Hyperlink>
-            </TextBlock>
+            <Grid>
+                <TextBlock Text="{Binding AppVersionText}" HorizontalAlignment="Left" Foreground="{StaticResource TextMutedBrush}"
+                           FontFamily="{StaticResource MonoFont}" FontSize="11"/>
+                <TextBlock HorizontalAlignment="Right" Foreground="{StaticResource TextMutedBrush}" FontSize="12">
+                    <Run Text="Need help? "/>
+                    <Hyperlink NavigateUri="https://github.com/Acaj0/CareerLiveryManager/issues" RequestNavigate="Hyperlink_RequestNavigate" Foreground="{StaticResource AccentBrush}">
+                        <Run Text="Report an issue on GitHub"/>
+                    </Hyperlink>
+                </TextBlock>
+            </Grid>
         </Border>
     </Grid>
 </Window>

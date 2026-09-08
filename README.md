@@ -25,6 +25,8 @@ Microsoft Flight Simulator 2024's Career Mode does not currently let you choose 
 - Lets you pick any third-party livery folder (e.g. downloaded from flightsim.to) and previews exactly what will be written before touching disk.
 - Prefers the Dynamic Registration variant when a livery ships one, for a more natural-looking tail number.
 - Tracks everything it installs so you can remove a package cleanly later.
+- Applying a new livery to an aircraft that already has one automatically replaces the old one, so you never end up with two competing Career Livery Manager packages for the same plane. It only ever touches packages it created itself.
+- Checks GitHub Releases on startup and offers a one-click update when a newer version is available.
 - Works with both the **Steam** and **Microsoft Store (OneStore)** builds of MSFS 2024.
 
 Prefer doing this by hand, or want to understand the mechanism first? See the [manual step-by-step guide](docs/MANUAL_GUIDE.md).
@@ -78,6 +80,14 @@ This is just what I've personally tested. It does not mean other aircraft don't 
 
 > Windows may show a SmartScreen warning the first time you run the `.exe`, since it isn't code-signed. This is expected for a small open-source tool. Click "More info" then "Run anyway".
 
+## Automatic updates
+
+Starting with **v1.1.0**, the app checks GitHub Releases for a newer version once on startup. If one is found, a small banner offers to download and install it with one click; picking "Later" just dismisses it for that session, nothing is forced. This can be turned off from Options in the header ("Check for updates automatically").
+
+Versions before v1.1.0 (the original v1.0.0 release) don't have this check built in and won't update themselves; you'd need to grab a newer release manually the first time, after which the updater takes over.
+
+Updating downloads the new release's zip to a temp folder, verifies its checksum when the release publishes one, then hands off to a small script that waits for the app to close, replaces the files in its install folder, and relaunches it. It never touches your MSFS Official/Community folders or Career save data - only its own install folder.
+
 ## Building from source
 
 Requires the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).
@@ -94,6 +104,20 @@ To publish a self-contained single-file `.exe`:
 ```bash
 dotnet publish src/CareerLiveryManager.App -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o publish
 ```
+
+### Publishing a release (for the auto-updater to detect it)
+
+1. Bump `<Version>` in `src/CareerLiveryManager.App/CareerLiveryManager.App.csproj` (semantic versioning, e.g. `1.2.0`).
+2. Run the packaging script from the repo root:
+
+   ```powershell
+   ./scripts/publish-release.ps1
+   ```
+
+   It publishes the self-contained build, then writes `dist/CareerLiveryManager-v1.2.0-win-x64.zip` and its `.sha256` checksum - the version in the filename is read straight from the csproj, no manual renaming.
+3. Create a GitHub Release tagged `v1.2.0` (matching the csproj version, with the `v` prefix) and upload both files from `dist/` as assets.
+
+The updater always reads the **latest** GitHub Release via the API, so no other configuration is needed.
 
 ## Project structure
 

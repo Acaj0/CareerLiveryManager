@@ -8,4 +8,7 @@ public sealed class AppConfig
 {
     public string OfficialPath { get; set; } = string.Empty;
     public string CommunityPath { get; set; } = string.Empty;
+
+    /// <summary>Whether the app checks GitHub Releases for a newer version on startup.</summary>
+    public bool CheckForUpdates { get; set; } = true;
 }

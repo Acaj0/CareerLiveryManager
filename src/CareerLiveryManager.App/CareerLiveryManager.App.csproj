@@ -21,6 +21,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Resources\Icon\clm.ico</ApplicationIcon>
+    <!-- Matches the README's "Run CareerLiveryManager.exe" instructions (the project file
+         name would otherwise produce "CareerLiveryManager.App.exe"). -->
+    <AssemblyName>CareerLiveryManager</AssemblyName>
+    <!-- Single source of truth for the app version. Must match the GitHub Release tag
+         (as vMAJOR.MINOR.PATCH) for the auto-updater to detect it correctly. -->
+    <Version>1.1.0</Version>
+    <!-- Without this, the .NET SDK appends "+<git commit sha>" to InformationalVersion
+         automatically whenever the project is inside a git repo, which would show up
+         as "v1.1.0+abc1234..." in the footer. -->
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 
 </Project>

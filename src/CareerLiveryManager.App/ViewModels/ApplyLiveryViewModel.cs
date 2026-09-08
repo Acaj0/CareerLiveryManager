@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using CareerLiveryManager.Core.Models;
 using CareerLiveryManager.Core.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -11,6 +12,7 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject
 {
     private readonly LiverySourceInspector _liveryInspector;
     private readonly PackageBuilder _packageBuilder;
+    private readonly InstalledPackagesManager _installedPackagesManager;
     private readonly SimProcessChecker _simProcessChecker;
     private readonly LogService _log;
     private readonly AppConfig _config;
@@ -45,9 +47,13 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject
     [ObservableProperty]
     private string _successPackageFolder = string.Empty;
 
+    [ObservableProperty]
+    private bool _isBusy;
+
     public ApplyLiveryViewModel(
         LiverySourceInspector liveryInspector,
         PackageBuilder packageBuilder,
+        InstalledPackagesManager installedPackagesManager,
         SimProcessChecker simProcessChecker,
         LogService log,
         AppConfig config,
@@ -55,6 +61,7 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject
     {
         _liveryInspector = liveryInspector;
         _packageBuilder = packageBuilder;
+        _installedPackagesManager = installedPackagesManager;
         _simProcessChecker = simProcessChecker;
         _log = log;
         _config = config;
@@ -62,8 +69,13 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject
         RefreshSimRunning();
     }
 
+    /// <summary>Enabled only once a preview has been generated and no apply is already running.</summary>
+    public bool CanApply => Preview is not null && !IsBusy;
+
     partial void OnSelectedLiveryChanged(LiverySourceInfo? value) => Preview = null;
     partial void OnUseDynamicRegistrationChanged(bool value) => Preview = null;
+    partial void OnPreviewChanged(PackagePreview? value) => OnPropertyChanged(nameof(CanApply));
+    partial void OnIsBusyChanged(bool value) => OnPropertyChanged(nameof(CanApply));
 
     [RelayCommand]
     private void BrowseLiverySource()
@@ -113,9 +125,9 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void ApplyLivery()
+    private async Task ApplyLivery()
     {
-        if (SelectedLivery is null)
+        if (SelectedLivery is null || IsBusy)
         {
             return;
         }
@@ -128,10 +140,43 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject
             return;
         }
 
-        var request = BuildRequest();
+        IsBusy = true;
         try
         {
-            var packageFolder = _packageBuilder.Apply(request, _config.CommunityPath);
+            // Find any package this app previously created for this exact aircraft, so it
+            // can be replaced instead of left behind (a stale package would otherwise keep
+            // "winning" the ordering trick over the new one, or just clutter Community).
+            var previousPackages = _installedPackagesManager.List(_config.CommunityPath)
+                .Where(p => string.Equals(p.AircraftSimObjectName, Aircraft.SimObjectName, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (previousPackages.Count > 0)
+            {
+                StatusMessageColor = "#D9A03C";
+                StatusMessage = "Replacing existing livery...";
+                await Task.Delay(1);
+            }
+            else
+            {
+                StatusMessageColor = "#D9A03C";
+                StatusMessage = "Installing new livery...";
+                await Task.Delay(1);
+            }
+
+            var request = BuildRequest();
+            var packageFolder = await Task.Run(() => _packageBuilder.Apply(request, _config.CommunityPath));
+
+            // Only now that the new package exists do we remove the old one(s) - if Apply
+            // above had thrown, the user would still be left with a working livery.
+            foreach (var previous in previousPackages)
+            {
+                if (!string.Equals(Path.GetFullPath(previous.PackageFolder), Path.GetFullPath(packageFolder), StringComparison.OrdinalIgnoreCase))
+                {
+                    _installedPackagesManager.Remove(previous.PackageFolder);
+                    _log.Info($"Removed previous Career Livery Manager package for '{Aircraft.SimObjectName}': '{previous.PackageFolder}'.");
+                }
+            }
+
             StatusMessageColor = "#3FBF8F";
             StatusMessage = $"Package created at: {packageFolder}\nOpen MSFS again so it rescans the Community folder.";
             _log.Info($"Livery applied: aircraft='{Aircraft.Title}' ({Aircraft.SimObjectName}), " +
@@ -145,6 +190,10 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject
             StatusMessageColor = "#D95C5C";
             StatusMessage = $"Error applying the livery: {ex.Message}";
             _log.Error($"Failed to apply livery '{SelectedLivery.BaseFolderName}' to '{Aircraft.Title}'.", ex);
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 
