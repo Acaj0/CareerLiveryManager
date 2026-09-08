@@ -18,6 +18,11 @@ Microsoft Flight Simulator 2024's Career Mode does not currently let you choose 
 
 **Career Livery Manager** works around this by generating a small Community package that registers your chosen livery under the aircraft's official vendor namespace, using an ordering trick the game happens to respect. It never touches your Official content and never edits any third-party livery package in place. Everything it creates lives in its own dedicated folder inside your Community folder, and can be removed with one click.
 
+
+<img width="979" height="471" alt="1" src="https://github.com/user-attachments/assets/9f8f0347-3818-4a71-bc09-7379781f687d" />
+if you want this amazing livery from TimHH you can have it in your carrer! [Cessna Citation Longitude](https://pl.flightsim.to/addon/94977/microsoft-cessna-citation-longitude-n233cl)
+
+
 ## Features
 
 - Detects every aircraft in your Official content folder automatically, with thumbnails.
