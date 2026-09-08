@@ -97,8 +97,16 @@
         <Border Grid.Row="3" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="0,1,0,0" Padding="24,10"
                 Visibility="{Binding ShowHeader, Converter={StaticResource BoolToVisibility}}">
             <Grid>
-                <TextBlock Text="{Binding AppVersionText}" HorizontalAlignment="Left" Foreground="{StaticResource TextMutedBrush}"
-                           FontFamily="{StaticResource MonoFont}" FontSize="11"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <TextBlock Text="{Binding AppVersionText}" Foreground="{StaticResource TextMutedBrush}"
+                               FontFamily="{StaticResource MonoFont}" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock Text=" · " Foreground="{StaticResource TextMutedBrush}" FontSize="12" VerticalAlignment="Center"/>
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}" FontSize="12">
+                        <Hyperlink NavigateUri="https://antoniodeabreu.dev/career-livery-manager" RequestNavigate="Hyperlink_RequestNavigate" Foreground="{StaticResource AccentBrush}">
+                            <Run Text="Send feedback"/>
+                        </Hyperlink>
+                    </TextBlock>
+                </StackPanel>
                 <TextBlock HorizontalAlignment="Right" Foreground="{StaticResource TextMutedBrush}" FontSize="12">
                     <Run Text="Need help? "/>
                     <Hyperlink NavigateUri="https://github.com/Acaj0/CareerLiveryManager/issues" RequestNavigate="Hyperlink_RequestNavigate" Foreground="{StaticResource AccentBrush}">
