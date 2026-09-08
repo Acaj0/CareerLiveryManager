@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://buymeacoffee.com/acaj0">☕ Buy me a coffee</a>
+  <a href="https://buymeacoffee.com/acaj0">☕ Buy me a coffee</a> · <a href="CHANGELOG.md">Changelog</a>
 </p>
 
 ---
@@ -84,10 +84,14 @@ Also reported working by the community (not personally tested by me):
 
 1. Download the latest release from the [Releases page](../../releases).
 2. Run `CareerLiveryManager.exe`.
-3. On first launch, point it at your `Official2024\Steam` (or `Official2024\OneStore`) folder and your `Community` folder.
+3. On first launch, click **Detect automatically** to have it find your `Official2024` and `Community` folders on its own (works for Steam, Microsoft Store, and Xbox app/Game Pass installs). If that doesn't find them, point it at the folders manually - see the troubleshooting note below for Game Pass.
 4. Pick an aircraft, pick a livery folder, apply.
 
 > Windows may show a SmartScreen warning the first time you run the `.exe`, since it isn't code-signed. This is expected for a small open-source tool. Click "More info" then "Run anyway".
+
+### Game Pass / Xbox app: "no package with a manifest.json was found"
+
+If you installed MSFS 2024 through the Xbox app (Game Pass), your `Official2024` folder isn't next to the game's install folder (e.g. `C:\XboxGames\...`) - it's in a separate, hidden location inside `AppData`. **Detect automatically** on the setup screen should find it for you; if it doesn't, see [docs/GAME_PASS_SETUP.md](docs/GAME_PASS_SETUP.md) for the exact path and how to locate it manually.
 
 ## Automatic updates
 

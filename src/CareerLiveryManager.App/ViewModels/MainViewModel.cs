@@ -29,6 +29,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public const string BuyMeACoffeeUrl = "https://buymeacoffee.com/acaj0";
     public const string FeedbackUrl = "https://antoniodeabreu.dev/career-livery-manager";
+    public const string ChangelogUrl = "https://github.com/Acaj0/CareerLiveryManager/blob/main/CHANGELOG.md";
 
     /// <summary>Shown in the footer so users can tell you which build they're running (e.g. when reporting an issue).</summary>
     public string AppVersionText => "v" + (
@@ -222,4 +223,8 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void OpenFeedback() =>
         Process.Start(new ProcessStartInfo(FeedbackUrl) { UseShellExecute = true });
+
+    [RelayCommand]
+    private void OpenChangelog() =>
+        Process.Start(new ProcessStartInfo(ChangelogUrl) { UseShellExecute = true });
 }

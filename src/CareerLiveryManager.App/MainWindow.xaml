@@ -56,6 +56,7 @@
                         <ContextMenu Placement="Bottom">
                             <MenuItem Header="Open logs" Command="{Binding OpenLogsCommand}"/>
                             <MenuItem Header="Change folders" Command="{Binding ChangeFoldersCommand}"/>
+                            <MenuItem Header="View changelog" Command="{Binding OpenChangelogCommand}"/>
                             <Separator/>
                             <MenuItem Header="Check for updates automatically" IsCheckable="True"
                                       IsChecked="{Binding CheckForUpdatesEnabled, Mode=OneWay}"
