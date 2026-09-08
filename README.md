@@ -66,7 +66,7 @@ This is just what I've personally tested. It does not mean other aircraft don't 
 - Vision Jet G2 (SF50)
 
 **Honda Aircraft Company**
-- HondaJet: tested, **not supported** (its liveries don't use `livery.cfg`, the app correctly flags it)
+- HondaJet
 
 **Pilatus**
 - PC-24
