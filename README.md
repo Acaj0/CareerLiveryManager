@@ -65,11 +65,20 @@ This is just what I've personally tested. It does not mean other aircraft don't 
 **Cirrus**
 - Vision Jet G2 (SF50)
 
+**Daher**
+- TBM 950
+
 **Honda Aircraft Company**
 - HondaJet
 
 **Pilatus**
+- PC-12
 - PC-24
+
+Also reported working by the community (not personally tested by me):
+
+**Diamond Aircraft**
+- DA40
 
 ## Getting started
 
