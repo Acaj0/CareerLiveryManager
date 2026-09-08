@@ -20,7 +20,10 @@ Microsoft Flight Simulator 2024's Career Mode does not currently let you choose 
 
 
 <img width="979" height="471" alt="1" src="https://github.com/user-attachments/assets/9f8f0347-3818-4a71-bc09-7379781f687d" />
-if you want this amazing livery from TimHH you can have it in your carrer! [Cessna Citation Longitude](https://pl.flightsim.to/addon/94977/microsoft-cessna-citation-longitude-n233cl)
+
+If you want this amazing livery from TimHH, you can have it in your career!
+
+[Cessna Citation Longitude](https://pl.flightsim.to/addon/94977/microsoft-cessna-citation-longitude-n233cl)
 
 
 ## Features
