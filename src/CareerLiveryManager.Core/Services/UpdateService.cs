@@ -23,11 +23,17 @@ public sealed class UpdateService
     private const string RepoName = "CareerLiveryManager";
     private const string LatestReleaseApiUrl = $"https://api.github.com/repos/{RepoOwner}/{RepoName}/releases/latest";
 
-    private static readonly HttpClient Http = CreateHttpClient();
+    // Short timeout for the small "check latest release" API call - if GitHub is slow to
+    // respond, we'd rather silently give up than block app startup.
+    private static readonly HttpClient Http = CreateHttpClient(TimeSpan.FromSeconds(10));
 
-    private static HttpClient CreateHttpClient()
+    // The zip asset can be tens of megabytes; a slow connection can easily take longer than
+    // 10 seconds just to finish, so downloads get a much more generous timeout of their own.
+    private static readonly HttpClient DownloadHttp = CreateHttpClient(TimeSpan.FromMinutes(10));
+
+    private static HttpClient CreateHttpClient(TimeSpan timeout)
     {
-        var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+        var client = new HttpClient { Timeout = timeout };
         client.DefaultRequestHeaders.UserAgent.ParseAdd("CareerLiveryManager-Updater");
         client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
         return client;
@@ -112,7 +118,7 @@ public sealed class UpdateService
     {
         Directory.CreateDirectory(Path.GetDirectoryName(destZipPath)!);
 
-        using var response = await Http.GetAsync(info.AssetDownloadUrl, HttpCompletionOption.ResponseHeadersRead, ct);
+        using var response = await DownloadHttp.GetAsync(info.AssetDownloadUrl, HttpCompletionOption.ResponseHeadersRead, ct);
         response.EnsureSuccessStatusCode();
 
         var totalBytes = response.Content.Headers.ContentLength ?? info.AssetSizeBytes;
@@ -147,7 +153,7 @@ public sealed class UpdateService
 
         try
         {
-            var expected = (await Http.GetStringAsync(info.ChecksumDownloadUrl, ct)).Trim();
+            var expected = (await DownloadHttp.GetStringAsync(info.ChecksumDownloadUrl, ct)).Trim();
             var expectedHash = expected.Split(' ', '\t')[0].Trim();
 
             await using var stream = File.OpenRead(zipPath);
