@@ -2,6 +2,10 @@
 
 This file always lists every release, newest first, with a link to that version's full notes in [`docs/changelog/`](docs/changelog). Bookmark this page - it's the one link that always shows the current state.
 
+## [v1.1.4](docs/changelog/v1.1.4.md)
+- Changed: feedback/changelog/roadmap links now point to the new site.
+- Docs: noted that streamed aircraft must be downloaded in-game first.
+
 ## [v1.1.3](docs/changelog/v1.1.3.md)
 - Fixed: update downloads timing out after 10 seconds on anything but a very fast connection.
 
