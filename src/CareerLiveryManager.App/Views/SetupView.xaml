@@ -41,7 +41,9 @@
                     <Button Grid.Column="1" Content="Browse..." Style="{StaticResource SecondaryButton}" Margin="10,0,0,0" Command="{Binding BrowseOfficialCommand}"/>
                 </Grid>
                 <TextBlock Text="Steam installs: ...\Official2024\Steam — Microsoft Store installs: ...\Official2024\OneStore"
-                           Foreground="{StaticResource TextMutedBrush}" FontSize="11" Margin="0,0,0,20"/>
+                           Foreground="{StaticResource TextMutedBrush}" FontSize="11" Margin="0,0,0,4"/>
+                <TextBlock Text="Note: aircraft must be downloaded in-game first, or the Official2024 folder will look empty."
+                           Foreground="{StaticResource WarningBrush}" FontSize="11" Margin="0,0,0,20"/>
 
                 <TextBlock Text="COMMUNITY FOLDER" Style="{StaticResource SectionLabel}" Margin="0,0,0,8"/>
                 <Grid Margin="0,0,0,8">

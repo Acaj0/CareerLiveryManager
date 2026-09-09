@@ -56,7 +56,8 @@
                         <ContextMenu Placement="Bottom">
                             <MenuItem Header="Open logs" Command="{Binding OpenLogsCommand}"/>
                             <MenuItem Header="Change folders" Command="{Binding ChangeFoldersCommand}"/>
-                            <MenuItem Header="View changelog" Command="{Binding OpenChangelogCommand}"/>
+                            <MenuItem Header="View updates" Command="{Binding OpenChangelogCommand}"/>
+                            <MenuItem Header="View roadmap" Command="{Binding OpenRoadmapCommand}"/>
                             <Separator/>
                             <MenuItem Header="Check for updates automatically" IsCheckable="True"
                                       IsChecked="{Binding CheckForUpdatesEnabled, Mode=OneWay}"
@@ -103,7 +104,7 @@
                                FontFamily="{StaticResource MonoFont}" FontSize="11" VerticalAlignment="Center"/>
                     <TextBlock Text=" · " Foreground="{StaticResource TextMutedBrush}" FontSize="12" VerticalAlignment="Center"/>
                     <TextBlock VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}" FontSize="12">
-                        <Hyperlink NavigateUri="https://antoniodeabreu.dev/career-livery-manager" RequestNavigate="Hyperlink_RequestNavigate" Foreground="{StaticResource AccentBrush}">
+                        <Hyperlink NavigateUri="https://career-livery-manager.vercel.app/feedback" RequestNavigate="Hyperlink_RequestNavigate" Foreground="{StaticResource AccentBrush}">
                             <Run Text="Send feedback"/>
                         </Hyperlink>
                     </TextBlock>

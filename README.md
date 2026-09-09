@@ -97,6 +97,8 @@ Also reported working by the community (not personally tested by me):
 
 > Windows may show a SmartScreen warning the first time you run the `.exe`, since it isn't code-signed. This is expected for a small open-source tool. Click "More info" then "Run anyway".
 
+> **An aircraft not showing up?** MSFS 2024 streams most aircraft on demand - the `Official2024\Steam` (or `\OneStore`) folder itself exists either way, but it'll look empty (or be missing that specific plane) until you've downloaded the aircraft from the in-game Marketplace/Content Manager at least once. Download it in-game first, then try again.
+
 ### Game Pass / Xbox app: "no package with a manifest.json was found"
 
 If you installed MSFS 2024 through the Xbox app (Game Pass), your `Official2024` folder isn't next to the game's install folder (e.g. `C:\XboxGames\...`) - it's in a separate, hidden location inside `AppData`. **Detect automatically** on the setup screen should find it for you; if it doesn't, see [docs/GAME_PASS_SETUP.md](docs/GAME_PASS_SETUP.md) for the exact path and how to locate it manually.

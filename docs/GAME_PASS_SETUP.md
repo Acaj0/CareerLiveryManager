@@ -2,6 +2,8 @@
 
 If you installed MSFS 2024 through the **Xbox app** (Game Pass for PC), your `Official2024` folder is **not** next to where the game itself is installed (e.g. `C:\XboxGames\Microsoft Flight Simulator 2024\...`). It lives in a separate, hidden location that Windows uses for all Microsoft Store apps.
 
+> **Also check: is the aircraft actually downloaded in-game?** MSFS 2024 streams most aircraft on demand, even on Game Pass. The `Official2024\OneStore` folder itself exists and is the right path, but it'll look empty (or be missing that specific plane's package) until you've downloaded the aircraft from the in-game Marketplace/Content Manager at least once - even with "Detect automatically" pointing at the right place. Download the aircraft in-game first.
+
 ## Option 1: Let the app find it for you (recommended)
 
 On the first-run screen (or Options → Change folders), click **Detect automatically**. It reads the path straight from MSFS's own `UserCfg.opt`, the same file the game itself uses, so it works for Steam, Microsoft Store, and Xbox app installs without you having to dig through folders.

@@ -28,8 +28,9 @@ public sealed partial class MainViewModel : ObservableObject
     private UpdateInfo? _pendingUpdate;
 
     public const string BuyMeACoffeeUrl = "https://buymeacoffee.com/acaj0";
-    public const string FeedbackUrl = "https://antoniodeabreu.dev/career-livery-manager";
-    public const string ChangelogUrl = "https://github.com/Acaj0/CareerLiveryManager/blob/main/CHANGELOG.md";
+    public const string FeedbackUrl = "https://career-livery-manager.vercel.app/feedback";
+    public const string ChangelogUrl = "https://career-livery-manager.vercel.app/changelog";
+    public const string RoadmapUrl = "https://career-livery-manager.vercel.app/roadmap";
 
     /// <summary>Shown in the footer so users can tell you which build they're running (e.g. when reporting an issue).</summary>
     public string AppVersionText => "v" + (
@@ -227,4 +228,8 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void OpenChangelog() =>
         Process.Start(new ProcessStartInfo(ChangelogUrl) { UseShellExecute = true });
+
+    [RelayCommand]
+    private void OpenRoadmap() =>
+        Process.Start(new ProcessStartInfo(RoadmapUrl) { UseShellExecute = true });
 }

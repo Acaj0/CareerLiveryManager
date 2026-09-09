@@ -4,6 +4,8 @@ This is the exact recipe **Career Livery Manager** automates. If you'd rather do
 
 **Requirements:** the livery you want to use must ship with a `livery.cfg` file (the modern MSFS format). Liveries in the old texture-only format (no `livery.cfg`) are not supported by this technique.
 
+> **The aircraft must already be downloaded in-game first.** MSFS 2024 streams most aircraft on demand - the `Official2024\Steam` (or `\OneStore`) folder itself exists either way, but it'll look empty (or be missing that specific plane's package) until you've downloaded the aircraft from the in-game Marketplace/Content Manager at least once. Download it in-game once, then come back here.
+
 ## 1. Find the aircraft's official "vendor" folder
 
 Open your `Official2024\Steam` (or `Official2024\OneStore`) folder, find the package for your aircraft, and look inside:
