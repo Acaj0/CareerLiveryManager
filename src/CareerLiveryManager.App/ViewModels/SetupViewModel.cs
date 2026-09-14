@@ -9,6 +9,7 @@ namespace CareerLiveryManager.App.ViewModels;
 public sealed partial class SetupViewModel : ObservableObject
 {
     private readonly ConfigService _configService;
+    private readonly LogService _log;
     private readonly MsfsPathDetector _pathDetector = new();
 
     public event EventHandler? SetupCompleted;
@@ -25,9 +26,10 @@ public sealed partial class SetupViewModel : ObservableObject
     [ObservableProperty]
     private string _statusMessageColor = "#D95C5C";
 
-    public SetupViewModel(ConfigService configService)
+    public SetupViewModel(ConfigService configService, LogService log)
     {
         _configService = configService;
+        _log = log;
         var config = _configService.Load();
         _officialPath = config.OfficialPath;
         _communityPath = config.CommunityPath;
@@ -42,6 +44,7 @@ public sealed partial class SetupViewModel : ObservableObject
             StatusMessageColor = "#D9A03C";
             StatusMessage = "Couldn't detect the folders automatically (this can happen with a custom install location). " +
                              "Please use \"Browse...\" below instead.";
+            _log.Info("Detect automatically: no folders found.");
             return;
         }
 
@@ -49,6 +52,7 @@ public sealed partial class SetupViewModel : ObservableObject
         CommunityPath = result.CommunityPath;
         StatusMessageColor = "#3FBF8F";
         StatusMessage = "Detected automatically. Review the paths below, then continue.";
+        _log.Info($"Detect automatically: found Official='{result.OfficialPath}', Community='{result.CommunityPath}'.");
     }
 
     [RelayCommand]
@@ -82,12 +86,30 @@ public sealed partial class SetupViewModel : ObservableObject
             return;
         }
 
+        if (string.IsNullOrWhiteSpace(CommunityPath))
+        {
+            StatusMessageColor = "#D95C5C";
+            StatusMessage = "Please choose a Community folder.";
+            return;
+        }
+
         if (!_configService.CommunityPathExists(CommunityPath))
         {
-            _configService.EnsureCommunityPathExists(CommunityPath);
+            try
+            {
+                _configService.EnsureCommunityPathExists(CommunityPath);
+            }
+            catch (Exception ex)
+            {
+                StatusMessageColor = "#D95C5C";
+                StatusMessage = $"Couldn't create the Community folder at that path: {ex.Message}";
+                _log.Error($"Failed to create Community folder '{CommunityPath}'.", ex);
+                return;
+            }
         }
 
         _configService.Save(new AppConfig { OfficialPath = OfficialPath, CommunityPath = CommunityPath });
+        _log.Info($"Setup saved: Official='{OfficialPath}', Community='{CommunityPath}'.");
         StatusMessage = string.Empty;
         SetupCompleted?.Invoke(this, EventArgs.Empty);
     }

@@ -2,6 +2,10 @@
 
 This file always lists every release, newest first, with a link to that version's full notes in [`docs/changelog/`](docs/changelog). Bookmark this page - it's the one link that always shows the current state.
 
+## [v1.1.5](docs/changelog/v1.1.5.md)
+- Fixed: the setup screen had no scrollbar and could hide the "Continue" button below the visible area, so the app never saved your folders.
+- Fixed: a stale/invalid Official folder path crashed the aircraft list with a raw error instead of sending you back to setup.
+
 ## [v1.1.4](docs/changelog/v1.1.4.md)
 - Changed: feedback/changelog/roadmap links now point to the new site.
 - Docs: noted that streamed aircraft must be downloaded in-game first.

@@ -28,9 +28,9 @@ public sealed partial class MainViewModel : ObservableObject
     private UpdateInfo? _pendingUpdate;
 
     public const string BuyMeACoffeeUrl = "https://buymeacoffee.com/acaj0";
-    public const string FeedbackUrl = "https://career-livery-manager.vercel.app/feedback";
-    public const string ChangelogUrl = "https://career-livery-manager.vercel.app/changelog";
-    public const string RoadmapUrl = "https://career-livery-manager.vercel.app/roadmap";
+    public const string FeedbackUrl = "https://clm.antoniodeabreu.dev/feedback";
+    public const string ChangelogUrl = "https://clm.antoniodeabreu.dev/changelog";
+    public const string RoadmapUrl = "https://clm.antoniodeabreu.dev/roadmap";
 
     /// <summary>Shown in the footer so users can tell you which build they're running (e.g. when reporting an issue).</summary>
     public string AppVersionText => "v" + (
@@ -165,9 +165,15 @@ public sealed partial class MainViewModel : ObservableObject
         }
     }
 
-    public void GoToSetup()
+    public void GoToSetup(string? statusMessage = null)
     {
-        var vm = new SetupViewModel(_configService);
+        var vm = new SetupViewModel(_configService, _log);
+        if (!string.IsNullOrEmpty(statusMessage))
+        {
+            vm.StatusMessage = statusMessage;
+            vm.StatusMessageColor = "#D9A03C";
+        }
+
         vm.SetupCompleted += (_, _) => GoToAircraftList();
         CurrentViewModel = vm;
         ShowHeader = true;
@@ -176,6 +182,15 @@ public sealed partial class MainViewModel : ObservableObject
     public void GoToAircraftList()
     {
         var config = _configService.Load();
+
+        // The saved config can go stale between screens (folder deleted/renamed, moved drive, etc.) -
+        // re-validate here instead of letting AircraftScanner throw a raw exception on a bad/empty path.
+        if (string.IsNullOrWhiteSpace(config.OfficialPath) || !_configService.IsValidOfficialPath(config.OfficialPath))
+        {
+            GoToSetup("Your Official content folder couldn't be found. Please set it again below.");
+            return;
+        }
+
         var vm = new AircraftListViewModel(_aircraftScanner, _installedPackagesManager, config, _log);
         vm.AircraftChosen += (_, aircraft) => GoToApplyLivery(aircraft);
         CurrentViewModel = vm;
