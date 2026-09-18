@@ -30,11 +30,13 @@ public sealed partial class LiveryCfgEditor
     }
 
     /// <summary>
-    /// Rewrites fallback.1 inside a "_DR" variant's texture.cfg so it points at the
-    /// (possibly renamed) sibling base-livery folder, e.g.:
-    /// fallback.1=..\..\C700_N282N\texture
+    /// Rewrites fallback.1 inside a "_DR" variant's texture.cfg to the exact relative value
+    /// given, e.g. <c>..\..\C700_N282N\texture</c> (sibling under the same vendor folder) or
+    /// <c>..\_fallback_base\texture</c> (nested inside the winning folder itself - see
+    /// PackageBuilder's activity-mode recipe, where the base can't be left as an untagged
+    /// sibling in the shared vendor namespace).
     /// </summary>
-    public void FixDrFallback(string textureCfgPath, string newBaseFolderName)
+    public void FixDrFallback(string textureCfgPath, string newFallbackValue)
     {
         var lines = File.ReadAllLines(textureCfgPath);
         var regex = Fallback1Regex();
@@ -46,7 +48,7 @@ public sealed partial class LiveryCfgEditor
                 continue;
             }
 
-            lines[i] = $@"fallback.1=..\..\{newBaseFolderName}\texture";
+            lines[i] = $"fallback.1={newFallbackValue}";
             break;
         }
 

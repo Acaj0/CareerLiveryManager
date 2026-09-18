@@ -6,6 +6,27 @@ namespace CareerLiveryManager.Core.Services;
 public sealed class PackageBuilder
 {
     private const string CreatorTag = "CareerLiveryManager";
+
+    /// <summary>
+    /// The 737 MAX splits its exterior into several separate modelled parts (airframe, wing_l,
+    /// wing_r, wing_c, tail, landinggearl, landinggearr - see CAREER_LIVERY_RESEARCH.md section 21).
+    /// Every official activity livery folder ships all of them, but a third-party repaint often only
+    /// covers the parts visible from the outside without a close look (e.g. wing_c, the wing-root
+    /// piece, is easy to miss). Community package layering replaces that whole named folder rather
+    /// than merging file-by-file with Official, so any part the livery doesn't cover loses its
+    /// paint entirely once repackaged into the official activity slot - it renders in the bare/primer
+    /// default instead of falling back to the plane's normal look, even though the very same livery
+    /// looks fine in Free Flight under its own folder name. Scoped to this aircraft only: other
+    /// activity-supported aircraft (C172, Caravan...) are simpler single-body models where this gap
+    /// doesn't occur.
+    /// </summary>
+    private const string B737MaxSimObjectName = "asobo_b737max";
+
+    /// <summary>Name of the subfolder a DR livery's base (full paint) is nested under, in
+    /// activity mode, so it never sits loose in the shared vendor namespace - see the DR
+    /// branch in <see cref="Apply"/> for why.</summary>
+    private const string FallbackBaseFolderName = "_fallback_base";
+
     private readonly LiveryCfgEditor _cfgEditor = new();
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
@@ -57,21 +78,34 @@ public sealed class PackageBuilder
 
             if (useDr)
             {
-                var baseDest = Path.Combine(vendorDestDir, request.Source.BaseFolderName);
+                // The base (full paint) folder must NOT sit as a sibling in the shared
+                // liveries/<vendor>/ namespace here: on aircraft with the activity/Tags system,
+                // an untagged loose folder there can get picked up by other selection contexts
+                // (e.g. the hangar/parking display) alongside our tagged winning folder, causing
+                // the livery to flicker between default and custom depending on view angle. Nest
+                // it inside the winning folder instead, where nothing else can ever find it.
+                var baseDest = Path.Combine(winningDest, FallbackBaseFolderName);
                 CopyDirectoryRecursive(request.Source.BaseFolderPath, baseDest);
                 CopyDirectoryRecursive(request.Source.DrFolderPath!, winningDest);
                 winningSourcePath = request.Source.DrFolderPath!;
 
-                var textureCfgPath = Directory.EnumerateFiles(winningDest, "texture.cfg", SearchOption.AllDirectories).FirstOrDefault();
+                var textureCfgPath = Directory.EnumerateFiles(winningDest, "texture.cfg", SearchOption.AllDirectories)
+                    .FirstOrDefault(f => !f.Contains(FallbackBaseFolderName, StringComparison.OrdinalIgnoreCase));
                 if (textureCfgPath is not null)
                 {
-                    _cfgEditor.FixDrFallback(textureCfgPath, request.Source.BaseFolderName);
+                    _cfgEditor.FixDrFallback(textureCfgPath, $@"..\{FallbackBaseFolderName}\texture");
                 }
             }
             else
             {
                 CopyDirectoryRecursive(request.Source.BaseFolderPath, winningDest);
                 winningSourcePath = request.Source.BaseFolderPath;
+            }
+
+            if (string.Equals(request.Aircraft.SimObjectName, B737MaxSimObjectName, StringComparison.OrdinalIgnoreCase))
+            {
+                var officialActivityFolder = Path.Combine(request.Aircraft.VendorPath, activity.OfficialFolderName);
+                FillMissingOfficialActivityFiles(winningDest, officialActivityFolder);
             }
 
             if (!activity.IsGenericSlot)
@@ -137,7 +171,10 @@ public sealed class PackageBuilder
     /// </summary>
     private void CopyCrossSimObjectFallbackSibling(string winningDestFolder, string winningSourceFolder, string currentSimObjectName, string packageFolder)
     {
-        var textureCfgPath = Directory.EnumerateFiles(winningDestFolder, "texture.cfg", SearchOption.AllDirectories).FirstOrDefault();
+        // Ignore any nested "_fallback_base" (see the DR branch above) - we only care about the
+        // winning folder's own texture.cfg here, not the base fallback's.
+        var textureCfgPath = Directory.EnumerateFiles(winningDestFolder, "texture.cfg", SearchOption.AllDirectories)
+            .FirstOrDefault(f => !f.Contains(FallbackBaseFolderName, StringComparison.OrdinalIgnoreCase));
         if (textureCfgPath is null)
         {
             return;
@@ -184,6 +221,41 @@ public sealed class PackageBuilder
         }
 
         CopyDirectoryRecursive(sourceSiblingPath, destSiblingPath);
+    }
+
+    /// <summary>
+    /// Copies, from the matching Official activity livery folder, any file the third-party livery
+    /// didn't provide - never a file it did. See <see cref="B737MaxSimObjectName"/> for why this
+    /// exists. livery.cfg and the thumbnail are always skipped: those must stay the third-party
+    /// livery's own (activity tags, package name, and preview image), never Official's.
+    /// </summary>
+    private static void FillMissingOfficialActivityFiles(string winningDest, string officialActivityFolder)
+    {
+        if (!Directory.Exists(officialActivityFolder))
+        {
+            return;
+        }
+
+        foreach (var officialFile in Directory.EnumerateFiles(officialActivityFolder, "*", SearchOption.AllDirectories))
+        {
+            var relative = Path.GetRelativePath(officialActivityFolder, officialFile);
+            var topSegment = relative.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)[0];
+            if (string.Equals(topSegment, "livery.cfg", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(topSegment, "thumbnail", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(Path.GetFileName(relative), "texture.cfg", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var destFile = Path.Combine(winningDest, relative);
+            if (File.Exists(destFile))
+            {
+                continue; // the third-party livery already covers this exact file - keep it
+            }
+
+            Directory.CreateDirectory(Path.GetDirectoryName(destFile)!);
+            File.Copy(officialFile, destFile);
+        }
     }
 
     /// <summary>Walks up from a livery folder to find the "SimObjects/Airplanes" ancestor in the source package.</summary>

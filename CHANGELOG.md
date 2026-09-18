@@ -2,6 +2,10 @@
 
 This file always lists every release, newest first, with a link to that version's full notes in [`docs/changelog/`](docs/changelog). Bookmark this page - it's the one link that always shows the current state.
 
+## [v1.2.1](docs/changelog/v1.2.1.md)
+- Fixed: a Dynamic Registration livery on an activity-supported aircraft (e.g. 737 MAX) could flicker between default and custom depending on camera angle, and look wrong in the hangar even when correct in a mission.
+- Fixed: on the 737 MAX, a livery missing coverage for one of the plane's less obvious parts (like the wing root) could show a patch of unpainted default color instead of blending in.
+
 ## [v1.2.0](docs/changelog/v1.2.0.md)
 - Added: Career activities support (Cargo, Flightseeing, Skydive, VIP/Charter, etc.) for Cessna 172, Caravan, 737 MAX, AT-802, H125, XCub, CL-415, and ES-30 - a different livery per job, not just one for the whole plane.
 - Added: responsive grid for the aircraft selection screen.
