@@ -192,16 +192,46 @@ public sealed partial class MainViewModel : ObservableObject
         }
 
         var vm = new AircraftListViewModel(_aircraftScanner, _installedPackagesManager, config, _log);
-        vm.AircraftChosen += (_, aircraft) => GoToApplyLivery(aircraft);
+        vm.AircraftChosen += (_, aircraft) =>
+        {
+            if (aircraft.HasActivities)
+            {
+                GoToAircraftDetail(aircraft);
+            }
+            else
+            {
+                GoToApplyLivery(aircraft, activity: null);
+            }
+        };
         CurrentViewModel = vm;
         ShowHeader = true;
     }
 
-    private void GoToApplyLivery(Core.Models.AircraftInfo aircraft)
+    private void GoToAircraftDetail(Core.Models.AircraftInfo aircraft)
     {
         var config = _configService.Load();
-        var vm = new ApplyLiveryViewModel(_liveryInspector, _packageBuilder, _installedPackagesManager, _simProcessChecker, _log, config, aircraft);
+        var vm = new AircraftDetailViewModel(aircraft, _installedPackagesManager, config);
+        vm.ActivityChosen += (_, activity) => GoToApplyLivery(aircraft, activity);
         vm.BackRequested += (_, _) => GoToAircraftList();
+        CurrentViewModel = vm;
+        ShowHeader = true;
+    }
+
+    private void GoToApplyLivery(Core.Models.AircraftInfo aircraft, Core.Models.AircraftActivityInfo? activity)
+    {
+        var config = _configService.Load();
+        var vm = new ApplyLiveryViewModel(_liveryInspector, _packageBuilder, _installedPackagesManager, _simProcessChecker, _log, config, aircraft, activity);
+        vm.BackRequested += (_, _) =>
+        {
+            if (aircraft.HasActivities)
+            {
+                GoToAircraftDetail(aircraft);
+            }
+            else
+            {
+                GoToAircraftList();
+            }
+        };
         CurrentViewModel = vm;
         ShowHeader = true;
     }

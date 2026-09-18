@@ -21,6 +21,12 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject
 
     public AircraftInfo Aircraft { get; }
 
+    /// <summary>The Career activity being customized (Cargo Transport, VIP/Charter...), or null for
+    /// single-livery aircraft that don't use the activity system at all.</summary>
+    public AircraftActivityInfo? Activity { get; }
+
+    public bool HasActivity => Activity is not null;
+
     public ObservableCollection<LiverySourceInfo> DetectedLiveries { get; } = new();
 
     [ObservableProperty]
@@ -57,7 +63,8 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject
         SimProcessChecker simProcessChecker,
         LogService log,
         AppConfig config,
-        AircraftInfo aircraft)
+        AircraftInfo aircraft,
+        AircraftActivityInfo? activity = null)
     {
         _liveryInspector = liveryInspector;
         _packageBuilder = packageBuilder;
@@ -66,6 +73,7 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject
         _log = log;
         _config = config;
         Aircraft = aircraft;
+        Activity = activity;
         RefreshSimRunning();
     }
 
@@ -143,11 +151,13 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject
         IsBusy = true;
         try
         {
-            // Find any package this app previously created for this exact aircraft, so it
-            // can be replaced instead of left behind (a stale package would otherwise keep
-            // "winning" the ordering trick over the new one, or just clutter Community).
+            // Find any package this app previously created for this exact aircraft *and this exact
+            // activity* (a Cargo Transport livery must never remove a Flightseeing one on the same
+            // plane - see CAREER_LIVERY_RESEARCH.md section 19), so it can be replaced instead of
+            // left behind.
             var previousPackages = _installedPackagesManager.List(_config.CommunityPath)
                 .Where(p => string.Equals(p.AircraftSimObjectName, Aircraft.SimObjectName, StringComparison.OrdinalIgnoreCase))
+                .Where(p => Activity is null ? !p.HasActivity : string.Equals(p.ActivityKey, Activity.ActivityKey, StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
             if (previousPackages.Count > 0)
@@ -179,7 +189,8 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject
 
             StatusMessageColor = "#3FBF8F";
             StatusMessage = $"Package created at: {packageFolder}\nOpen MSFS again so it rescans the Community folder.";
-            _log.Info($"Livery applied: aircraft='{Aircraft.Title}' ({Aircraft.SimObjectName}), " +
+            var activityNote = Activity is null ? string.Empty : $", activity='{Activity.ActivityKey}'";
+            _log.Info($"Livery applied: aircraft='{Aircraft.Title}' ({Aircraft.SimObjectName}){activityNote}, " +
                       $"livery='{SelectedLivery.BaseFolderName}', useDr={UseDynamicRegistration}, package='{packageFolder}'.");
             Preview = null;
             SuccessPackageFolder = packageFolder;
@@ -211,7 +222,8 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject
 
     private ApplyLiveryRequest BuildRequest()
     {
-        var packageName = $"career-livery-{Aircraft.SimObjectName}-{SelectedLivery!.BaseFolderName}".Replace(' ', '-');
+        var activitySegment = Activity is null ? string.Empty : $"-{Activity.ActivityKey}";
+        var packageName = $"career-livery-{Aircraft.SimObjectName}{activitySegment}-{SelectedLivery!.BaseFolderName}".Replace(' ', '-');
 
         return new ApplyLiveryRequest
         {
@@ -219,6 +231,7 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject
             Source = SelectedLivery,
             UseDr = UseDynamicRegistration,
             PackageName = packageName,
+            Activity = Activity,
         };
     }
 }

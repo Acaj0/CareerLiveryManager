@@ -11,11 +11,15 @@
         <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility"/>
         <conv:StringToVisibilityConverter x:Key="StringToVisibility"/>
         <conv:NullToVisibilityConverter x:Key="NullToVisibility"/>
+        <conv:NullToInverseVisibilityConverter x:Key="NullToInverseVisibility"/>
         <conv:NullToBoolConverter x:Key="NullToBool"/>
         <conv:CountToVisibilityConverter x:Key="CountToVisibility"/>
         <conv:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
         <conv:FilePathToImageSourceConverter x:Key="FilePathToImage"/>
         <conv:InverseBoolConverter x:Key="InverseBool"/>
+        <conv:InstalledToStatusTextConverter x:Key="InstalledToStatusText"/>
+        <conv:WidthToColumnsConverter x:Key="WidthToColumns"/>
+        <conv:InstalledCountLabelConverter x:Key="InstalledCountLabel"/>
 
         <FontFamily x:Key="AppFont">./Resources/Fonts/#Montserrat</FontFamily>
         <FontFamily x:Key="MonoFont">./Resources/Fonts/#JetBrains Mono</FontFamily>
@@ -296,6 +300,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:AircraftListViewModel}">
             <views:AircraftListView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:AircraftDetailViewModel}">
+            <views:AircraftDetailView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:ApplyLiveryViewModel}">
             <views:ApplyLiveryView/>

@@ -24,8 +24,16 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0">
-                <TextBlock Text="APPLY LIVERY" Style="{StaticResource SectionLabel}" Margin="0,0,0,6"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                    <TextBlock Text="APPLY LIVERY" Style="{StaticResource SectionLabel}"/>
+                    <TextBlock Text="{Binding Activity.DisplayName, StringFormat=' — {0}'}" Style="{StaticResource SectionLabel}"
+                               Foreground="{StaticResource AccentBrush}"
+                               Visibility="{Binding HasActivity, Converter={StaticResource BoolToVisibility}}"/>
+                </StackPanel>
                 <TextBlock Text="{Binding Aircraft.Title}" FontSize="26" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Activity.DisplayName, StringFormat='This livery will be used for {0} jobs.'}"
+                           Foreground="{StaticResource TextMutedBrush}" FontSize="12" Margin="0,4,0,0"
+                           Visibility="{Binding HasActivity, Converter={StaticResource BoolToVisibility}}"/>
             </StackPanel>
             <Button Grid.Column="1" Content="Back" Style="{StaticResource SecondaryButton}" Command="{Binding BackCommand}"/>
         </Grid>

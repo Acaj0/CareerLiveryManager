@@ -57,7 +57,13 @@
                             </Border>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="15"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="15"/>
+                                    <Border Margin="8,0,0,0" BorderThickness="1" CornerRadius="4" Padding="6,2" BorderBrush="{StaticResource BorderStrongBrush}"
+                                            Visibility="{Binding HasActivity, Converter={StaticResource BoolToVisibility}}">
+                                        <TextBlock Text="{Binding ActivityDisplayName}" FontFamily="{StaticResource MonoFont}" FontSize="9" Foreground="{StaticResource AccentBrush}"/>
+                                    </Border>
+                                </StackPanel>
                                 <TextBlock Text="{Binding AircraftSimObjectName}" Foreground="{StaticResource TextMutedBrush}" FontSize="11" Margin="0,3,0,0"/>
                                 <TextBlock Text="{Binding PackageFolder}" Foreground="{StaticResource TextMutedBrush}" FontFamily="{StaticResource MonoFont}" FontSize="10" Margin="0,2,0,0"/>
                             </StackPanel>

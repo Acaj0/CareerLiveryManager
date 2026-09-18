@@ -2,6 +2,11 @@
 
 This file always lists every release, newest first, with a link to that version's full notes in [`docs/changelog/`](docs/changelog). Bookmark this page - it's the one link that always shows the current state.
 
+## [v1.2.0](docs/changelog/v1.2.0.md)
+- Added: Career activities support (Cargo, Flightseeing, Skydive, VIP/Charter, etc.) for Cessna 172, Caravan, 737 MAX, AT-802, H125, XCub, CL-415, and ES-30 - a different livery per job, not just one for the whole plane.
+- Added: responsive grid for the aircraft selection screen.
+- Fixed: some aircraft showed no thumbnail (or a generic gray "Placeholder" image) instead of a real photo in the aircraft list.
+
 ## [v1.1.5](docs/changelog/v1.1.5.md)
 - Fixed: the setup screen had no scrollbar and could hide the "Continue" button below the visible area, so the app never saved your folders.
 - Fixed: a stale/invalid Official folder path crashed the aircraft list with a raw error instead of sending you back to setup.

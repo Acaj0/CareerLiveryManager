@@ -40,14 +40,26 @@ public sealed class InstalledPackagesManager
                 }
 
                 var title = root.TryGetProperty("title", out var titleEl) ? titleEl.GetString() : Path.GetFileName(packageFolder);
-                var simObjectName = FindSimObjectName(packageFolder);
+                var activityKey = GetString(root, "career_activity");
+                var activityDisplay = GetString(root, "career_activity_display");
+                var activityFolder = GetString(root, "career_activity_folder");
+
+                // Older packages (pre-activity-system) don't have "career_simobject" saved -
+                // fall back to the old folder-enumeration guess for those.
+                var simObjectName = GetString(root, "career_simobject");
+                if (string.IsNullOrEmpty(simObjectName))
+                {
+                    simObjectName = FindSimObjectName(packageFolder);
+                }
 
                 result.Add(new InstalledPackageInfo
                 {
                     PackageFolder = packageFolder,
                     Title = title ?? Path.GetFileName(packageFolder),
                     AircraftSimObjectName = simObjectName,
-                    ThumbnailPath = FindThumbnail(packageFolder),
+                    ThumbnailPath = FindThumbnail(packageFolder, simObjectName, activityFolder),
+                    ActivityKey = activityKey,
+                    ActivityDisplayName = activityDisplay,
                 });
             }
             catch (JsonException)
@@ -67,10 +79,36 @@ public sealed class InstalledPackagesManager
         }
     }
 
-    private static string? FindThumbnail(string packageFolder)
+    private static string GetString(JsonElement root, string propertyName) =>
+        root.TryGetProperty(propertyName, out var el) ? el.GetString() ?? string.Empty : string.Empty;
+
+    private static string? FindThumbnail(string packageFolder, string simObjectName, string activityFolder)
     {
-        // Prefer a thumbnail that belongs to the "!"-prefixed winning livery folder,
-        // since a DR setup also keeps an un-prefixed base folder around.
+        // If we know exactly which SimObject/activity-slot folder is the "winning" one, look
+        // there first - avoids picking up a cross-SimObject fallback sibling's own thumbnail
+        // by mistake (see PackageBuilder.CopyCrossSimObjectFallbackSibling).
+        if (!string.IsNullOrEmpty(simObjectName) && !string.IsNullOrEmpty(activityFolder))
+        {
+            var scopedDir = Path.Combine(packageFolder, "simobjects", "airplanes", simObjectName, "liveries");
+            if (Directory.Exists(scopedDir))
+            {
+                var scoped = Directory.EnumerateFiles(scopedDir, "*", SearchOption.AllDirectories)
+                    .Where(f => f.Contains($"{Path.DirectorySeparatorChar}{activityFolder}{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+                    .Where(f => f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase))
+                    .Where(f => Path.GetFileName(f).Contains("thumbnail", StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(f => f.Length)
+                    .FirstOrDefault();
+
+                if (scoped is not null)
+                {
+                    return scoped;
+                }
+            }
+        }
+
+        // Fallback (older packages, or the "!"-prefixed single-livery recipe): prefer a thumbnail
+        // that belongs to the "!"-prefixed winning livery folder, since a DR setup also keeps an
+        // un-prefixed base folder around.
         var all = Directory.EnumerateFiles(packageFolder, "thumbnail*.png", SearchOption.AllDirectories)
             .Concat(Directory.EnumerateFiles(packageFolder, "thumbnail*.jpg", SearchOption.AllDirectories))
             .ToList();

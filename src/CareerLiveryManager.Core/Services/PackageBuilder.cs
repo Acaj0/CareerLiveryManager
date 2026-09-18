@@ -16,20 +16,18 @@ public sealed class PackageBuilder
     public PackagePreview Preview(ApplyLiveryRequest request, string communityPath)
     {
         var packageFolder = Path.Combine(communityPath, SanitizePackageName(request.PackageName));
-        var winningName = request.UseDr && request.Source.HasDr
-            ? request.Source.DrFolderName!
-            : request.Source.BaseFolderName;
+        var winningName = WinningFolderName(request);
 
         var files = new List<PlannedFile>();
         CollectPlannedFiles(request, files);
 
-        var manifest = BuildManifestJson(request.Aircraft.Title);
+        var manifest = BuildManifestJson(request.Aircraft.Title, request.Activity, request.Aircraft.SimObjectName);
 
         return new PackagePreview
         {
             PackageFolder = packageFolder,
             Files = files,
-            WinningLiveryName = "!" + winningName,
+            WinningLiveryName = winningName,
             ManifestJson = manifest,
         };
     }
@@ -48,7 +46,46 @@ public sealed class PackageBuilder
 
         var useDr = request.UseDr && request.Source.HasDr;
 
-        if (useDr)
+        if (request.Activity is { } activity)
+        {
+            // Newer recipe (see CAREER_LIVERY_RESEARCH.md section 19): the official folder name
+            // itself is what Career keys off - either by exact path (the generic "official_static"
+            // slot) or by [Tags]/[Specialization] inside livery.cfg (freelance activity slots).
+            // No "!" prefix trick needed or wanted here.
+            var winningDest = Path.Combine(vendorDestDir, activity.OfficialFolderName);
+            string winningSourcePath;
+
+            if (useDr)
+            {
+                var baseDest = Path.Combine(vendorDestDir, request.Source.BaseFolderName);
+                CopyDirectoryRecursive(request.Source.BaseFolderPath, baseDest);
+                CopyDirectoryRecursive(request.Source.DrFolderPath!, winningDest);
+                winningSourcePath = request.Source.DrFolderPath!;
+
+                var textureCfgPath = Directory.EnumerateFiles(winningDest, "texture.cfg", SearchOption.AllDirectories).FirstOrDefault();
+                if (textureCfgPath is not null)
+                {
+                    _cfgEditor.FixDrFallback(textureCfgPath, request.Source.BaseFolderName);
+                }
+            }
+            else
+            {
+                CopyDirectoryRecursive(request.Source.BaseFolderPath, winningDest);
+                winningSourcePath = request.Source.BaseFolderPath;
+            }
+
+            if (!activity.IsGenericSlot)
+            {
+                var cfgPath = Path.Combine(winningDest, "livery.cfg");
+                if (File.Exists(cfgPath))
+                {
+                    _cfgEditor.SetCareerActivityTags(cfgPath, activity.DressingCodes, activity.LicenceTag);
+                }
+            }
+
+            CopyCrossSimObjectFallbackSibling(winningDest, winningSourcePath, request.Aircraft.SimObjectName, packageFolder);
+        }
+        else if (useDr)
         {
             // Base folder is kept WITHOUT "!" - it only exists so the DR variant's
             // texture.cfg fallback.1 can still find the real paint job.
@@ -84,10 +121,99 @@ public sealed class PackageBuilder
             }
         }
 
-        File.WriteAllText(Path.Combine(packageFolder, "manifest.json"), BuildManifestJson(request.Aircraft.Title));
+        File.WriteAllText(Path.Combine(packageFolder, "manifest.json"), BuildManifestJson(request.Aircraft.Title, request.Activity, request.Aircraft.SimObjectName));
         WriteLayoutJson(packageFolder);
 
         return packageFolder;
+    }
+
+    /// <summary>
+    /// Some liveries (e.g. the Cessna 172 G1000 variant) ship only a partial texture set and rely
+    /// on a texture.cfg fallback.1 pointing at a *different SimObject entirely* (the analog-gauge
+    /// C172) for the rest of the paint job. Community packages don't automatically inherit that
+    /// sibling from Official content, so without this the plane renders solid white in-game - see
+    /// CAREER_LIVERY_RESEARCH.md section 17.6/18. This copies that sibling folder straight from
+    /// the third-party source (never from Official content) if the fallback needs one.
+    /// </summary>
+    private void CopyCrossSimObjectFallbackSibling(string winningDestFolder, string winningSourceFolder, string currentSimObjectName, string packageFolder)
+    {
+        var textureCfgPath = Directory.EnumerateFiles(winningDestFolder, "texture.cfg", SearchOption.AllDirectories).FirstOrDefault();
+        if (textureCfgPath is null)
+        {
+            return;
+        }
+
+        var fallback = _cfgEditor.ReadFallback1(textureCfgPath);
+        if (string.IsNullOrWhiteSpace(fallback))
+        {
+            return;
+        }
+
+        var segments = fallback.Split(['\\', '/'], StringSplitOptions.RemoveEmptyEntries);
+        var relativeSegments = segments.SkipWhile(s => s == "..").ToArray();
+        if (relativeSegments.Length < 4)
+        {
+            return; // not the "<simobject>\liveries\<vendor>\<name>\texture" shape we expect
+        }
+
+        var targetSimObject = relativeSegments[0];
+        if (string.Equals(targetSimObject, currentSimObjectName, StringComparison.OrdinalIgnoreCase))
+        {
+            return; // same-SimObject fallback (e.g. a DR sibling) - already handled elsewhere
+        }
+
+        // Drop the trailing "texture" segment to get the sibling livery folder itself.
+        var liveryRelativeSegments = relativeSegments[..^1];
+
+        var airplanesRoot = FindSimObjectsAirplanesRoot(winningSourceFolder);
+        if (airplanesRoot is null)
+        {
+            return;
+        }
+
+        var sourceSiblingPath = Path.Combine(airplanesRoot, Path.Combine(liveryRelativeSegments));
+        if (!Directory.Exists(sourceSiblingPath))
+        {
+            return;
+        }
+
+        var destSiblingPath = Path.Combine(new[] { packageFolder, "simobjects", "airplanes" }.Concat(liveryRelativeSegments).ToArray());
+        if (Directory.Exists(destSiblingPath))
+        {
+            return; // already copied (e.g. two activities sharing the same sibling in one package)
+        }
+
+        CopyDirectoryRecursive(sourceSiblingPath, destSiblingPath);
+    }
+
+    /// <summary>Walks up from a livery folder to find the "SimObjects/Airplanes" ancestor in the source package.</summary>
+    private static string? FindSimObjectsAirplanesRoot(string liveryFolderPath)
+    {
+        var dir = new DirectoryInfo(liveryFolderPath);
+        while (dir is not null)
+        {
+            if (string.Equals(dir.Name, "Airplanes", StringComparison.OrdinalIgnoreCase) &&
+                dir.Parent is not null && string.Equals(dir.Parent.Name, "SimObjects", StringComparison.OrdinalIgnoreCase))
+            {
+                return dir.FullName;
+            }
+
+            dir = dir.Parent;
+        }
+
+        return null;
+    }
+
+    private static string WinningFolderName(ApplyLiveryRequest request)
+    {
+        if (request.Activity is { } activity)
+        {
+            return activity.OfficialFolderName;
+        }
+
+        var useDr = request.UseDr && request.Source.HasDr;
+        var name = useDr ? request.Source.DrFolderName! : request.Source.BaseFolderName;
+        return "!" + name;
     }
 
     private static string StripLeadingBang(string name) => name.TrimStart('!');
@@ -112,7 +238,20 @@ public sealed class PackageBuilder
             }
         }
 
-        if (useDr)
+        if (request.Activity is not null)
+        {
+            var destName = request.Activity.OfficialFolderName;
+            if (useDr)
+            {
+                AddFolder(request.Source.BaseFolderPath, request.Source.BaseFolderName);
+                AddFolder(request.Source.DrFolderPath!, destName);
+            }
+            else
+            {
+                AddFolder(request.Source.BaseFolderPath, destName);
+            }
+        }
+        else if (useDr)
         {
             AddFolder(request.Source.BaseFolderPath, request.Source.BaseFolderName);
             AddFolder(request.Source.DrFolderPath!, "!" + request.Source.DrFolderName);
@@ -142,13 +281,14 @@ public sealed class PackageBuilder
         }
     }
 
-    private static string BuildManifestJson(string aircraftTitle)
+    private static string BuildManifestJson(string aircraftTitle, AircraftActivityInfo? activity, string? simObjectName)
     {
+        var titleSuffix = activity is null ? string.Empty : $" - {activity.DisplayName}";
         var manifest = new
         {
             dependencies = Array.Empty<object>(),
             content_type = "LIVERY",
-            title = $"Career Livery - {aircraftTitle}",
+            title = $"Career Livery - {aircraftTitle}{titleSuffix}",
             manufacturer = "",
             creator = CreatorTag,
             package_version = "1.0.0",
@@ -158,6 +298,14 @@ public sealed class PackageBuilder
             builder = "Microsoft Flight Simulator 2024",
             package_order_hint = "SIMOBJECTS_PATCH",
             release_notes = new { neutral = new { LastUpdate = "", OlderHistory = "" } },
+            // Extra fields InstalledPackagesManager reads back to know exactly which SimObject/
+            // activity slot this package targets, since folder-name enumeration alone becomes
+            // ambiguous once a cross-SimObject fallback sibling (see CopyCrossSimObjectFallbackSibling)
+            // is present alongside the winning livery folder.
+            career_simobject = simObjectName ?? "",
+            career_activity = activity?.ActivityKey ?? "",
+            career_activity_display = activity?.DisplayName ?? "",
+            career_activity_folder = activity?.OfficialFolderName ?? "",
         };
 
         return JsonSerializer.Serialize(manifest, JsonOptions);

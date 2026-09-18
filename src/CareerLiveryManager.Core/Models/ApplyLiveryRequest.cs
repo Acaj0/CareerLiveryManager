@@ -14,6 +14,14 @@ public sealed class ApplyLiveryRequest
     public bool UseDr { get; init; } = true;
 
     public required string PackageName { get; init; }
+
+    /// <summary>
+    /// The Career activity being customized (Cargo Transport, VIP/Charter, etc.), or null for
+    /// single-livery aircraft (Longitude, CJ4, A321...) using the original "!"-prefixed recipe.
+    /// When set, PackageBuilder overwrites the exact official slot folder instead - see
+    /// CAREER_LIVERY_RESEARCH.md section 19.
+    /// </summary>
+    public AircraftActivityInfo? Activity { get; init; }
 }
 
 public sealed class PlannedFile

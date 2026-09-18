@@ -31,19 +31,23 @@ public sealed partial class AircraftListViewModel : ObservableObject
 
             var installedBySimObject = installedPackagesManager.List(config.CommunityPath)
                 .GroupBy(p => p.AircraftSimObjectName, StringComparer.OrdinalIgnoreCase)
-                .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+                .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.OrdinalIgnoreCase);
 
             foreach (var aircraft in _allAircraft)
             {
                 if (installedBySimObject.TryGetValue(aircraft.SimObjectName, out var installed))
                 {
                     aircraft.IsInstalled = true;
-                    aircraft.InstalledLiveryThumbnailPath = installed.ThumbnailPath;
+                    aircraft.InstalledCount = installed.Count;
+                    aircraft.InstalledLiveryThumbnailPath = installed[0].ThumbnailPath;
                 }
             }
 
             ApplyFilter();
-            _log.Info($"Scanned {_allAircraft.Count} aircraft in '{config.OfficialPath}'.");
+            var withActivities = _allAircraft.Where(a => a.HasActivities).ToList();
+            _log.Info($"Scanned {_allAircraft.Count} aircraft in '{config.OfficialPath}'. " +
+                      $"{withActivities.Count} have detected Career activities: " +
+                      string.Join("; ", withActivities.Select(a => $"{a.Title}=[{string.Join(",", a.Activities.Select(x => x.ActivityKey))}]")));
 
             if (_allAircraft.Count == 0)
             {
