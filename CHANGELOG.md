@@ -2,9 +2,14 @@
 
 This file always lists every release, newest first, with a link to that version's full notes in [`docs/changelog/`](docs/changelog). Bookmark this page - it's the one link that always shows the current state.
 
+## [v1.2.2](docs/changelog/v1.2.2.md)
+- Fixed: on the 737 MAX, a livery missing coverage for one of the plane's parts (wing root, landing gear, tail, or the whole fuselage on a texture-only livery) now renders invisibly instead of showing the wrong color or a demo airline's own branding.
+- Fixed: some 737 MAX multi-registration livery packs (a shared "_common" assets folder) made the plane show up blank/white - now detected and copied automatically.
+- Fixed: installing the same 737 MAX livery for more than one Career activity showed identical, indistinguishable names in Free Flight - each one now gets an activity label.
+- Added: applying a livery now logs exactly what the app backfilled or adjusted, for easier bug reports.
+
 ## [v1.2.1](docs/changelog/v1.2.1.md)
 - Fixed: a Dynamic Registration livery on an activity-supported aircraft (e.g. 737 MAX) could flicker between default and custom depending on camera angle, and look wrong in the hangar even when correct in a mission.
-- Fixed: on the 737 MAX, a livery missing coverage for one of the plane's less obvious parts (like the wing root) could show a patch of unpainted default color instead of blending in.
 
 ## [v1.2.0](docs/changelog/v1.2.0.md)
 - Added: Career activities support (Cargo, Flightseeing, Skydive, VIP/Charter, etc.) for Cessna 172, Caravan, 737 MAX, AT-802, H125, XCub, CL-415, and ES-30 - a different livery per job, not just one for the whole plane.

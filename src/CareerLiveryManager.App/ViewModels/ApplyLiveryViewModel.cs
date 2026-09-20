@@ -174,7 +174,8 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject
             }
 
             var request = BuildRequest();
-            var packageFolder = await Task.Run(() => _packageBuilder.Apply(request, _config.CommunityPath));
+            var applyResult = await Task.Run(() => _packageBuilder.ApplyWithNotes(request, _config.CommunityPath));
+            var packageFolder = applyResult.PackageFolder;
 
             // Only now that the new package exists do we remove the old one(s) - if Apply
             // above had thrown, the user would still be left with a working livery.
@@ -192,6 +193,10 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject
             var activityNote = Activity is null ? string.Empty : $", activity='{Activity.ActivityKey}'";
             _log.Info($"Livery applied: aircraft='{Aircraft.Title}' ({Aircraft.SimObjectName}){activityNote}, " +
                       $"livery='{SelectedLivery.BaseFolderName}', useDr={UseDynamicRegistration}, package='{packageFolder}'.");
+            foreach (var note in applyResult.Notes)
+            {
+                _log.Info($"  -> {note}");
+            }
             Preview = null;
             SuccessPackageFolder = packageFolder;
             ShowSuccessModal = true;

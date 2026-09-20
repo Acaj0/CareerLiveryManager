@@ -29,6 +29,17 @@ public sealed partial class LiveryCfgEditor
         File.WriteAllLines(liveryCfgPath, lines);
     }
 
+    /// <summary>Reads the current "Name=" value from a livery.cfg's [GENERAL] section (quotes
+    /// stripped), or null if the file has no Name line.</summary>
+    public string? ReadLiveryName(string liveryCfgPath)
+    {
+        var match = File.ReadLines(liveryCfgPath)
+            .Select(l => NameValueRegex().Match(l))
+            .FirstOrDefault(m => m.Success);
+
+        return match?.Groups["value"].Value.Trim().Trim('"');
+    }
+
     /// <summary>
     /// Rewrites fallback.1 inside a "_DR" variant's texture.cfg to the exact relative value
     /// given, e.g. <c>..\..\C700_N282N\texture</c> (sibling under the same vendor folder) or
@@ -120,6 +131,9 @@ public sealed partial class LiveryCfgEditor
 
     [GeneratedRegex(@"^\s*Name\s*=\s*(?<quote>""?)", RegexOptions.IgnoreCase)]
     private static partial Regex NameLineRegex();
+
+    [GeneratedRegex(@"^\s*Name\s*=\s*(?<value>.+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex NameValueRegex();
 
     [GeneratedRegex(@"^\s*fallback\.1\s*=", RegexOptions.IgnoreCase)]
     private static partial Regex Fallback1Regex();

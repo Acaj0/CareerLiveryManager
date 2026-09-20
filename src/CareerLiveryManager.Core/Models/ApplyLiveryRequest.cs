@@ -37,3 +37,16 @@ public sealed class PackagePreview
     public required string WinningLiveryName { get; init; }
     public required string ManifestJson { get; init; }
 }
+
+/// <summary>
+/// Result of <see cref="Services.PackageBuilder.Apply"/>. <see cref="Notes"/> records any
+/// non-default recipe steps PackageBuilder took (a 737 MAX part backfilled from Official, a
+/// same-vendor "_common" sibling copied, a cross-SimObject fallback sibling copied...) so a bug
+/// report's log line can show exactly what happened, without needing to re-extract the livery zip
+/// to find out - see CAREER_LIVERY_RESEARCH.md section 21/22 for the cases this covers.
+/// </summary>
+public sealed class ApplyResult
+{
+    public required string PackageFolder { get; init; }
+    public required IReadOnlyList<string> Notes { get; init; }
+}
