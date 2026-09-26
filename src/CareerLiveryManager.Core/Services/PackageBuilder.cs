@@ -197,7 +197,7 @@ public sealed class PackageBuilder
             var textureCfgPath = Directory.EnumerateFiles(drDest, "texture.cfg", SearchOption.AllDirectories).FirstOrDefault();
             if (textureCfgPath is not null)
             {
-                _cfgEditor.FixDrFallback(textureCfgPath, request.Source.BaseFolderName);
+                _cfgEditor.FixDrFallback(textureCfgPath, $@"..\..\{request.Source.BaseFolderName}\texture");
             }
 
             if (string.Equals(request.Aircraft.SimObjectName, B737MaxSimObjectName, StringComparison.OrdinalIgnoreCase))

@@ -2,6 +2,9 @@
 
 This file always lists every release, newest first, with a link to that version's full notes in [`docs/changelog/`](docs/changelog). Bookmark this page - it's the one link that always shows the current state.
 
+## [v1.2.3](docs/changelog/v1.2.3.md)
+- Fixed: a Dynamic Registration livery on an aircraft with no Career activity (e.g. Cessna Citation Longitude, CJ4) could show missing/wrong-colored textures on parts the registration variant doesn't cover - regressed in v1.2.1, activity aircraft (737 MAX, C172, Caravan, etc.) were never affected.
+
 ## [v1.2.2](docs/changelog/v1.2.2.md)
 - Fixed: on the 737 MAX, a livery missing coverage for one of the plane's parts (wing root, landing gear, tail, or the whole fuselage on a texture-only livery) now renders invisibly instead of showing the wrong color or a demo airline's own branding.
 - Fixed: some 737 MAX multi-registration livery packs (a shared "_common" assets folder) made the plane show up blank/white - now detected and copied automatically.
