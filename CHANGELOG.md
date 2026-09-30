@@ -2,6 +2,9 @@
 
 This file always lists every release, newest first, with a link to that version's full notes in [`docs/changelog/`](docs/changelog). Bookmark this page - it's the one link that always shows the current state.
 
+## [v1.2.4](docs/changelog/v1.2.4.md)
+- Fixed: Cessna 208B Grand Caravan EX Career activity liveries showed the official scheme's branding/color through parts the third-party livery didn't cover - same fix as the 737 MAX, scoped to the Caravan only.
+
 ## [v1.2.3](docs/changelog/v1.2.3.md)
 - Fixed: a Dynamic Registration livery on an aircraft with no Career activity (e.g. Cessna Citation Longitude, CJ4) could show missing/wrong-colored textures on parts the registration variant doesn't cover - regressed in v1.2.1, activity aircraft (737 MAX, C172, Caravan, etc.) were never affected.
 

@@ -20,7 +20,9 @@ public sealed class PackageBuilder
     /// which carries its own visible branding/color - not a neutral default - even though the very
     /// same third-party livery looks fine in Free Flight under its own folder name, where nothing
     /// depends on that slot's content. Scoped to this aircraft only: other activity-supported
-    /// aircraft (C172, Caravan...) are simpler single-body models where this gap doesn't occur.
+    /// aircraft weren't reported to have this gap - except the Caravan, which turned out to have
+    /// the exact same multi-part structure and got its own separate fix, see
+    /// <see cref="CaravanSimObjectName"/>.
     /// </summary>
     private const string B737MaxSimObjectName = "asobo_b737max";
 
@@ -37,6 +39,44 @@ public sealed class PackageBuilder
     /// wing_c and the landing gear folders entirely) - _10 was checked to have all of them.
     /// </summary>
     private const string B737MaxNeutralStaticFolderName = "official_static_10";
+
+    /// <summary>
+    /// The Cessna 208B Grand Caravan EX is split into several separate modelled parts too (airframe,
+    /// backdoor, backdoor_right, tail, wing_left, wing_right - confirmed against the real Official
+    /// content, contradicting the original assumption that non-737 activity aircraft were simpler
+    /// single-body models). Reported in-game: a third-party Caravan livery that doesn't cover every
+    /// part shows the official activity scheme's own branding/color through the gaps - the exact same
+    /// symptom the 737 MAX had. Reuses the same invisible-backfill machinery, scoped to this SimObject
+    /// only - does not touch the 737 MAX branch or any other aircraft.
+    /// </summary>
+    private const string CaravanSimObjectName = "asobo_c208b";
+
+    /// <summary>
+    /// Unlike the 737 MAX, the Caravan has no single neutral scheme that covers every activity slot's
+    /// parts - "official_static_01" is actually the amphibian/float variant and lacks a texture folder
+    /// entirely. Instead, each activity category ships its own plain "&lt;category&gt;_static_01" scheme
+    /// (e.g. "cargo_static_01") for the same category's freelance slot - used at the call site if it
+    /// exists, falling back to the activity's own official folder (no neutral substitution, but still
+    /// getting the invisible part-backfill) if it doesn't.
+    /// </summary>
+    private const string CaravanNeutralStaticSuffix = "_static_01";
+
+    /// <summary>
+    /// The Caravan's company name/logo decal materials on model.airframe - confirmed by decompressing
+    /// the real Official geometry for the "cargo" freelance and adaptive schemes, which used slightly
+    /// different naming between variants. Every name here is only ever a company decal placeholder,
+    /// never the livery's own paint (CustomCOLOR_Painting_*) or the tail number (RegistrationNumber) -
+    /// those are always left alone.
+    /// </summary>
+    private static readonly HashSet<string> CaravanAirframeDecalMaterialsToHide = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "CUSTOM_Image_00",
+        "CUSTOM_Image_01",
+        "CUSTOM_Text_00",
+        "CUSTOM_Text_01",
+        "CUSTOM_TEXT_00_LEFT",
+        "CUSTOM_TEXT_00_RIGHT",
+    };
 
     /// <summary>
     /// Fallback tint for <see cref="MakeMaterialsInvisible"/>'s rewritten materials. In practice the
@@ -135,13 +175,12 @@ public sealed class PackageBuilder
 
             // Cross-SimObject fallback siblings (e.g. the C172 G1000 variant borrowing paint from
             // its analog-gauge sibling) apply to any activity aircraft and predate this section -
-            // left as-is. Everything else here (the "_common" shared-assets pattern, the missing-
-            // part backfill, and the livery display name rewrite) was added specifically chasing 737
-            // MAX bugs and is gated to that SimObject only: other activity aircraft (C172, Caravan,
-            // AT-802, H125, XCub, CL-415, ES30) don't share the 737 MAX's split-into-many-parts
-            // structure or its multi-registration "_common" pack convention, and their own DR/
-            // activity handling already works - there's no reason for 737 MAX-specific fixes to run
-            // for them at all.
+            // left as-is. The "_common" shared-assets pattern and the livery display name rewrite
+            // were added specifically chasing 737 MAX bugs and stay gated to that SimObject only -
+            // no other aircraft has been reported to need them. The missing-part backfill below is
+            // also needed by the Caravan (see <see cref="CaravanSimObjectName"/>), gated separately;
+            // every other activity aircraft (C172, AT-802, H125, XCub, CL-415, ES30) hasn't been
+            // reported to have this gap, so none of this runs for them.
             CopyCrossSimObjectFallbackSibling(winningDest, winningSourcePath, request.Aircraft.SimObjectName, packageFolder, notes);
 
             if (string.Equals(request.Aircraft.SimObjectName, B737MaxSimObjectName, StringComparison.OrdinalIgnoreCase))
@@ -150,7 +189,14 @@ public sealed class PackageBuilder
 
                 var officialActivityFolder = Path.Combine(request.Aircraft.VendorPath, activity.OfficialFolderName);
                 var neutralFolder = Path.Combine(request.Aircraft.VendorPath, B737MaxNeutralStaticFolderName);
-                FillMissingOfficialActivityFiles(winningDest, officialActivityFolder, neutralFolder, notes);
+                FillMissingOfficialActivityFiles(winningDest, officialActivityFolder, neutralFolder, B737MaxAirframeDecalMaterialsToHide, notes);
+            }
+            else if (string.Equals(request.Aircraft.SimObjectName, CaravanSimObjectName, StringComparison.OrdinalIgnoreCase))
+            {
+                var officialActivityFolder = Path.Combine(request.Aircraft.VendorPath, activity.OfficialFolderName);
+                var neutralCandidate = Path.Combine(request.Aircraft.VendorPath, activity.ActivityKey + CaravanNeutralStaticSuffix);
+                var neutralFolder = Directory.Exists(neutralCandidate) ? neutralCandidate : officialActivityFolder;
+                FillMissingOfficialActivityFiles(winningDest, officialActivityFolder, neutralFolder, CaravanAirframeDecalMaterialsToHide, notes);
             }
 
             var activityCfgPath = Path.Combine(winningDest, "livery.cfg");
@@ -309,11 +355,11 @@ public sealed class PackageBuilder
     /// Loose files outside model.* (the texture set) still use the simpler fill-only-what's-missing
     /// rule, keyed by exact file name.
     /// </summary>
-    private static void FillMissingOfficialActivityFiles(string winningDest, string officialActivityFolder, string neutralFolder, List<string> notes)
+    private static void FillMissingOfficialActivityFiles(string winningDest, string officialActivityFolder, string neutralFolder, HashSet<string> airframeDecalMaterialsToHide, List<string> notes)
     {
         if (!Directory.Exists(officialActivityFolder))
         {
-            notes.Add($"737 MAX backfill skipped: no matching Official activity folder found at '{officialActivityFolder}'.");
+            notes.Add($"Missing-part backfill skipped: no matching Official activity folder found at '{officialActivityFolder}'.");
             return;
         }
 
@@ -360,7 +406,7 @@ public sealed class PackageBuilder
             {
                 foreach (var gltfFile in Directory.EnumerateFiles(destPartDir, "*.gltf"))
                 {
-                    var patched = MakeNamedMaterialsInvisible(File.ReadAllBytes(gltfFile), B737MaxAirframeDecalMaterialsToHide);
+                    var patched = MakeNamedMaterialsInvisible(File.ReadAllBytes(gltfFile), airframeDecalMaterialsToHide);
                     File.WriteAllBytes(gltfFile, patched);
                 }
             }
