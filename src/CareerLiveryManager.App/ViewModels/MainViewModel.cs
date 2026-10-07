@@ -22,6 +22,8 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly PackageBuilder _packageBuilder = new();
     private readonly InstalledPackagesManager _installedPackagesManager = new();
     private readonly SimProcessChecker _simProcessChecker = new();
+    private readonly SetupValidator _setupValidator = new();
+    private readonly MsfsPathDetector _pathDetector = new();
     private readonly UpdateService _updateService = new();
     private readonly LogService _log = new();
 
@@ -39,6 +41,15 @@ public sealed partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private ObservableObject _currentViewModel;
+
+    /// <summary>A screen that holds a timer or similar is told it's being left, whichever way the user left it.</summary>
+    partial void OnCurrentViewModelChanging(ObservableObject? oldValue, ObservableObject newValue)
+    {
+        if (oldValue is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+    }
 
     /// <summary>Only the Home screen hides the persistent header (it has its own hero branding).</summary>
     [ObservableProperty]
@@ -63,6 +74,9 @@ public sealed partial class MainViewModel : ObservableObject
     {
         _currentViewModel = null!;
         CheckForUpdatesEnabled = _configService.Load().CheckForUpdates;
+        // Folders a dropped .zip was extracted to are normally deleted when the screen is left; this removes
+        // any a crash or forced close left behind. Best effort, off the UI thread.
+        _ = Task.Run(() => new ArchiveExtractor().CleanupStale(TimeSpan.FromHours(12)));
         GoToHome();
         _ = CheckForUpdatesOnStartupAsync();
     }
@@ -151,17 +165,16 @@ public sealed partial class MainViewModel : ObservableObject
     private void ContinuePastHome()
     {
         var config = _configService.Load();
-        var alreadyConfigured =
-            !string.IsNullOrWhiteSpace(config.OfficialPath) && _configService.IsValidOfficialPath(config.OfficialPath) &&
-            !string.IsNullOrWhiteSpace(config.CommunityPath) && _configService.CommunityPathExists(config.CommunityPath);
 
-        if (alreadyConfigured)
+        // Never configured: the plain Setup screen. A saved configuration is validated (and, if it
+        // went stale, explained) by GoToAircraftList.
+        if (string.IsNullOrWhiteSpace(config.OfficialPath) || string.IsNullOrWhiteSpace(config.CommunityPath))
         {
-            GoToAircraftList();
+            GoToSetup();
         }
         else
         {
-            GoToSetup();
+            GoToAircraftList();
         }
     }
 
@@ -172,6 +185,7 @@ public sealed partial class MainViewModel : ObservableObject
         {
             vm.StatusMessage = statusMessage;
             vm.StatusMessageColor = "#D9A03C";
+            vm.Revalidate();
         }
 
         vm.SetupCompleted += (_, _) => GoToAircraftList();
@@ -185,9 +199,22 @@ public sealed partial class MainViewModel : ObservableObject
 
         // The saved config can go stale between screens (folder deleted/renamed, moved drive, etc.) -
         // re-validate here instead of letting AircraftScanner throw a raw exception on a bad/empty path.
-        if (string.IsNullOrWhiteSpace(config.OfficialPath) || !_configService.IsValidOfficialPath(config.OfficialPath))
+        // Only errors send the user back; warnings were already confirmed when the setup was saved.
+        var issues = _setupValidator.Validate(config.OfficialPath, config.CommunityPath, _pathDetector.ReadUserCfg());
+        if (issues.Any(i => i.Severity == SetupIssueSeverity.Error))
         {
-            GoToSetup("Your Official content folder couldn't be found. Please set it again below.");
+            foreach (var issue in issues.Where(i => i.Severity == SetupIssueSeverity.Error))
+            {
+                _log.Info($"Saved setup failed validation {issue.Id}: {issue.Message}");
+            }
+
+            GoToSetup("Your saved folders need attention. Fix the problems listed below.");
+            return;
+        }
+
+        if (!_configService.CommunityPathExists(config.CommunityPath))
+        {
+            GoToSetup("Your Community folder couldn't be found. Please check it below.");
             return;
         }
 
@@ -255,9 +282,107 @@ public sealed partial class MainViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            _log.Error("Could not open the log file from the header menu.", ex);
+            // Typically no program is set to open ".log" files. The folder is always openable, and
+            // the log (plus its rolled-over copies) is right there.
+            _log.Error("Could not open the log file from the header menu; opening its folder instead.", ex);
+            try
+            {
+                Directory.CreateDirectory(LogService.LogDirectory);
+                Process.Start(new ProcessStartInfo("explorer.exe", $"\"{LogService.LogDirectory}\"") { UseShellExecute = true });
+            }
+            catch (Exception folderEx)
+            {
+                _log.Error("Could not open the log folder either.", folderEx);
+            }
         }
     }
+
+    [RelayCommand]
+    private async Task ExportDiagnosticReport()
+    {
+        var dialog = new Views.DiagnosticReportWindow { Owner = System.Windows.Application.Current.MainWindow };
+        if (dialog.ShowDialog() != true)
+        {
+            return;
+        }
+
+        var save = new Microsoft.Win32.SaveFileDialog
+        {
+            Title = "Save the diagnostic report",
+            Filter = "Zip file (*.zip)|*.zip",
+            FileName = $"CLM-diagnostic-{DateTime.Now:yyyyMMdd-HHmm}.zip",
+            InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
+            DefaultExt = ".zip",
+            AddExtension = true,
+        };
+        if (save.ShowDialog() != true)
+        {
+            return;
+        }
+
+        try
+        {
+            var request = CreateDiagnosticRequest(redactUserName: dialog.HideUserName);
+            var builder = new DiagnosticReportBuilder();
+            await Task.Run(() => builder.Build(request, save.FileName));
+
+            _log.Info($"Diagnostic report exported to '{save.FileName}' (username hidden: {request.RedactUserName}).");
+            var openFolder = System.Windows.MessageBox.Show(
+                $"The report was saved to:\n{save.FileName}\n\nOpen the folder?",
+                "Diagnostic report saved",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Information);
+            if (openFolder == System.Windows.MessageBoxResult.Yes)
+            {
+                Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{save.FileName}\"") { UseShellExecute = true });
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.Error("Failed to export the diagnostic report.", ex);
+            System.Windows.MessageBox.Show(
+                $"Couldn't create the report: {ex.Message}",
+                "Diagnostic report",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Warning);
+        }
+    }
+
+    [RelayCommand]
+    private async Task CopyDiagnosticSummary()
+    {
+        try
+        {
+            var request = CreateDiagnosticRequest(redactUserName: true);
+            var summary = await Task.Run(() => new DiagnosticReportBuilder().BuildSummary(request));
+            System.Windows.Clipboard.SetText(summary);
+
+            _log.Info("Diagnostic summary copied to the clipboard.");
+            System.Windows.MessageBox.Show(
+                "A short summary was copied to the clipboard (your Windows username is hidden). Paste it into your message.",
+                "Diagnostic summary copied",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            _log.Error("Failed to copy the diagnostic summary.", ex);
+            System.Windows.MessageBox.Show(
+                $"Couldn't create the summary: {ex.Message}",
+                "Diagnostic summary",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Warning);
+        }
+    }
+
+    private DiagnosticReportRequest CreateDiagnosticRequest(bool redactUserName) => new()
+    {
+        AppVersion = AppVersionText,
+        Config = _configService.Load(),
+        UserCfg = _pathDetector.ReadUserCfg(),
+        LogDirectory = LogService.LogDirectory,
+        RedactUserName = redactUserName,
+    };
 
     [RelayCommand]
     private void ChangeFolders() => GoToSetup();

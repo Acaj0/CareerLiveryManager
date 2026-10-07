@@ -986,7 +986,8 @@ public sealed class PackageBuilder
             var destName = request.Activity.OfficialFolderName;
             if (useDr)
             {
-                AddFolder(request.Source.BaseFolderPath, request.Source.BaseFolderName);
+                // Mirrors Apply: the base is nested inside the winning slot folder, never loose beside it.
+                AddFolder(request.Source.BaseFolderPath, Path.Combine(destName, FallbackBaseFolderName));
                 AddFolder(request.Source.DrFolderPath!, destName);
             }
             else

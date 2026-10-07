@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -8,6 +8,13 @@
 
   <ItemGroup>
     <PackageReference Include="System.Net.Http.Json" Version="8.0.1" />
+    <!-- .rar and .7z extraction (MIT, one ~1.5 MB assembly with no further dependencies on .NET 8). .zip needs nothing extra. -->
+    <PackageReference Include="SharpCompress" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Lets the test project reach a few internal seams (e.g. a failing write probe) without making them public. -->
+    <InternalsVisibleTo Include="CareerLiveryManager.Core.Tests" />
   </ItemGroup>
 
 </Project>

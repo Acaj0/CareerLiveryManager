@@ -30,11 +30,13 @@ If you want this amazing livery from TimHH, you can have it in your career!
 
 - Detects every aircraft in your Official content folder automatically, with thumbnails.
 - Flags aircraft that don't support the modern `livery.cfg` format instead of silently failing on them.
-- Lets you pick any third-party livery folder (e.g. downloaded from flightsim.to) and previews exactly what will be written before touching disk.
+- Lets you drop a third-party livery straight from your downloads (e.g. from flightsim.to): a `.zip`, `.rar` or `.7z` is extracted for you, or you can pick the extracted folder. It previews exactly what will be written, and how much space it needs, before touching disk.
 - Prefers the Dynamic Registration variant when a livery ships one, for a more natural-looking tail number.
 - Tracks everything it installs so you can remove a package cleanly later.
 - Applying a new livery to an aircraft that already has one automatically replaces the old one, so you never end up with two competing Career Livery Manager packages for the same plane. It only ever touches packages it created itself.
 - Checks GitHub Releases on startup and offers a one-click update when a newer version is available.
+- Checks your Official and Community folders and explains common mistakes (the same folder for both, the wrong level, MSFS 2020 folders...), with one-click fixes.
+- *Options > Export diagnostic report* creates a single `.zip` to attach to a bug report. Nothing is uploaded and your Windows user name is hidden by default.
 - Works with both the **Steam** and **Microsoft Store (OneStore)** builds of MSFS 2024.
 
 Prefer doing this by hand, or want to understand the mechanism first? See the [manual step-by-step guide](docs/MANUAL_GUIDE.md).
@@ -42,7 +44,7 @@ Prefer doing this by hand, or want to understand the mechanism first? See the [m
 ## How it works, in short
 
 1. You point the app at your `Official2024` folder and your `Community` folder (one-time setup).
-2. You pick an aircraft and a livery folder.
+2. You pick an aircraft and drop the livery you downloaded (or pick its extracted folder).
 3. The app copies that livery into a new Community package, named so it wins the ordering the game already uses internally. If the livery has a Dynamic Registration variant, it wires the fallback texture path correctly.
 4. Restart MSFS and the livery shows up on your Career aircraft.
 

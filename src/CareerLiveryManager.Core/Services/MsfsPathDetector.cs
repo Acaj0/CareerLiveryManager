@@ -2,6 +2,9 @@ using System.Text.RegularExpressions;
 
 namespace CareerLiveryManager.Core.Services;
 
+/// <summary>What MSFS 2024's own UserCfg.opt says: where it was found and its InstalledPackagesPath.</summary>
+public sealed record UserCfgInfo(string UserCfgPath, string Storefront, string InstalledPackagesPath);
+
 /// <summary>
 /// Tries to locate the Official2024 and Community folders automatically by reading
 /// MSFS 2024's own UserCfg.opt, instead of asking the user to browse for them by hand.
@@ -15,16 +18,16 @@ public sealed class MsfsPathDetector
         new(@"InstalledPackagesPath\s+""([^""]+)""", RegexOptions.Compiled);
 
     /// <summary>Known locations for MSFS 2024's UserCfg.opt, one per storefront.</summary>
-    private static IEnumerable<string> CandidateUserCfgPaths()
+    private static IEnumerable<(string Path, string Storefront)> CandidateUserCfgPaths()
     {
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
         // Steam
-        yield return Path.Combine(appData, "Microsoft Flight Simulator 2024", "UserCfg.opt");
+        yield return (Path.Combine(appData, "Microsoft Flight Simulator 2024", "UserCfg.opt"), "Steam");
 
         // Microsoft Store / Xbox app (Game Pass) - MSFS 2024's package family name.
-        yield return Path.Combine(localAppData, "Packages", "Microsoft.Limitless_8wekyb3d8bbwe", "LocalCache", "UserCfg.opt");
+        yield return (Path.Combine(localAppData, "Packages", "Microsoft.Limitless_8wekyb3d8bbwe", "LocalCache", "UserCfg.opt"), "Microsoft Store / Xbox app");
     }
 
     public sealed class DetectionResult
@@ -34,14 +37,32 @@ public sealed class MsfsPathDetector
     }
 
     /// <summary>
+    /// Reads the first UserCfg.opt that exists and has an InstalledPackagesPath, without checking
+    /// that the folders it names exist. Null when none is found or readable.
+    /// </summary>
+    public UserCfgInfo? ReadUserCfg()
+    {
+        foreach (var (path, storefront) in CandidateUserCfgPaths())
+        {
+            var info = TryReadUserCfg(path, storefront);
+            if (info is not null)
+            {
+                return info;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
     /// Returns the detected Official2024/&lt;storefront&gt; and Community paths, or null if
     /// UserCfg.opt couldn't be found/parsed or the paths it points to don't actually exist.
     /// </summary>
     public DetectionResult? TryDetect(ConfigService configService)
     {
-        foreach (var userCfgPath in CandidateUserCfgPaths())
+        foreach (var (userCfgPath, storefront) in CandidateUserCfgPaths())
         {
-            var result = TryDetectFrom(userCfgPath, configService);
+            var result = TryDetectFrom(userCfgPath, storefront, configService);
             if (result is not null)
             {
                 return result;
@@ -51,7 +72,7 @@ public sealed class MsfsPathDetector
         return null;
     }
 
-    private static DetectionResult? TryDetectFrom(string userCfgPath, ConfigService configService)
+    private static UserCfgInfo? TryReadUserCfg(string userCfgPath, string storefront)
     {
         if (!File.Exists(userCfgPath))
         {
@@ -60,14 +81,30 @@ public sealed class MsfsPathDetector
 
         try
         {
-            var content = File.ReadAllText(userCfgPath);
-            var match = InstalledPackagesPathRegex.Match(content);
-            if (!match.Success)
-            {
-                return null;
-            }
+            var match = InstalledPackagesPathRegex.Match(File.ReadAllText(userCfgPath));
+            return match.Success ? new UserCfgInfo(userCfgPath, storefront, match.Groups[1].Value) : null;
+        }
+        catch (IOException)
+        {
+            return null;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return null;
+        }
+    }
 
-            var packagesRoot = match.Groups[1].Value;
+    private static DetectionResult? TryDetectFrom(string userCfgPath, string storefront, ConfigService configService)
+    {
+        var info = TryReadUserCfg(userCfgPath, storefront);
+        if (info is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            var packagesRoot = info.InstalledPackagesPath;
             var officialRoot = Path.Combine(packagesRoot, "Official2024");
             var communityPath = Path.Combine(packagesRoot, "Community");
 

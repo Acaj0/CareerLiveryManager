@@ -36,6 +36,11 @@ public sealed class PackagePreview
     public required IReadOnlyList<PlannedFile> Files { get; init; }
     public required string WinningLiveryName { get; init; }
     public required string ManifestJson { get; init; }
+
+    public int FileCount => Files.Count;
+
+    /// <summary>Sum of the planned files' sizes: what the copy will add to the Community folder.</summary>
+    public long TotalBytes => Files.Sum(f => f.SizeBytes);
 }
 
 /// <summary>

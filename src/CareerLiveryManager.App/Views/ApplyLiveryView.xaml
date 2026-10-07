@@ -3,8 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:CareerLiveryManager.App.Views"
              mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="600">
-    <Grid>
+    <Grid x:Name="Root" AllowDrop="True" Background="{StaticResource CanvasBrush}"
+          DragEnter="Root_DragEnter" DragOver="Root_DragOver" DragLeave="Root_DragLeave" Drop="Root_Drop">
     <ScrollViewer VerticalScrollBarVisibility="Auto" Background="{StaticResource CanvasBrush}">
     <Grid Margin="40,32" MaxWidth="720" HorizontalAlignment="Center">
         <Grid.RowDefinitions>
@@ -35,46 +37,108 @@
                            Foreground="{StaticResource TextMutedBrush}" FontSize="12" Margin="0,4,0,0"
                            Visibility="{Binding HasActivity, Converter={StaticResource BoolToVisibility}}"/>
             </StackPanel>
-            <Button Grid.Column="1" Content="Back" Style="{StaticResource SecondaryButton}" Command="{Binding BackCommand}"/>
+            <Button Grid.Column="1" Content="Back" Style="{StaticResource SecondaryButton}" Command="{Binding BackCommand}" VerticalAlignment="Top"/>
         </Grid>
 
-        <Border Grid.Row="1" BorderBrush="#4A3A1E" Background="#1F1810" BorderThickness="1" CornerRadius="6" Padding="14" Margin="0,0,0,20"
-                Visibility="{Binding IsSimRunning, Converter={StaticResource BoolToVisibility}}">
-            <TextBlock Text="MSFS is currently running. Close the game completely before applying changes." TextWrapping="Wrap" Foreground="{StaticResource WarningBrush}"/>
-        </Border>
+        <local:Callout Grid.Row="1" Margin="0,0,0,20" Title="MSFS is currently running"
+                       Text="Close the game completely before applying changes. This notice goes away by itself once it's closed."
+                       Visibility="{Binding IsSimRunning, Converter={StaticResource BoolToVisibility}}"/>
 
-        <Button Grid.Row="2" Content="Choose livery folder..." Style="{StaticResource SecondaryButton}" HorizontalAlignment="Left"
-                Command="{Binding BrowseLiverySourceCommand}" Margin="0,0,0,20"/>
-
-        <Border Grid.Row="3" Style="{StaticResource Card}" Padding="20" Margin="0,0,0,20"
-                Visibility="{Binding DetectedLiveries.Count, Converter={StaticResource CountToVisibility}}">
-            <StackPanel>
-                <TextBlock Text="DETECTED LIVERY" Style="{StaticResource SectionLabel}" Margin="0,0,0,8"/>
-                <ComboBox ItemsSource="{Binding DetectedLiveries}" SelectedItem="{Binding SelectedLivery}" DisplayMemberPath="BaseFolderName" Margin="0,0,0,16"/>
-                <Border Width="380" Height="230" Background="#0A0D11" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1" CornerRadius="6" HorizontalAlignment="Left"
-                        Visibility="{Binding SelectedLivery.ThumbnailPath, Converter={StaticResource StringToVisibility}}">
-                    <Image Source="{Binding SelectedLivery.ThumbnailPath, Converter={StaticResource FilePathToImage}}" Stretch="Uniform" Margin="4"/>
+        <!-- Source: an invitation to drop the extracted folder, replaced by the detected livery once one is loaded. -->
+        <Grid Grid.Row="2" Margin="0,0,0,20" Visibility="{Binding HasDetectedLiveries, Converter={StaticResource InverseBoolToVisibility}}">
+            <Rectangle RadiusX="10" RadiusY="10" Stroke="{StaticResource BorderStrongBrush}" StrokeThickness="1.5" StrokeDashArray="4 4" Fill="{StaticResource SurfaceBrush}"/>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24,30">
+                <Border Width="48" Height="48" CornerRadius="24" Background="#0E1A1F" BorderBrush="#1B4A57" BorderThickness="1" Margin="0,0,0,14" HorizontalAlignment="Center">
+                    <Path Style="{StaticResource Icon}" Data="{StaticResource IconDropIn}" Stroke="{StaticResource AccentBrush}" Width="20" Height="20"/>
                 </Border>
+                <TextBlock Text="Drop the livery here" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                <TextBlock TextWrapping="Wrap" TextAlignment="Center" MaxWidth="440" Foreground="{StaticResource TextMutedBrush}" FontSize="12" Margin="0,6,0,16"
+                           Text="Drop the .zip, .rar or .7z you downloaded and the app extracts it for you, or drop the extracted folder (the one that contains SimObjects)."/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Content="Choose archive..." Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Command="{Binding BrowseLiveryArchiveCommand}"/>
+                    <Button Content="Choose folder..." Style="{StaticResource SecondaryButton}" Command="{Binding BrowseLiverySourceCommand}"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="2" Style="{StaticResource Card}" Padding="20" Margin="0,0,0,20"
+                Visibility="{Binding HasDetectedLiveries, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel>
+                <Grid Margin="0,0,0,12">
+                    <TextBlock Text="DETECTED LIVERY" Style="{StaticResource SectionLabel}" VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Another archive..." Style="{StaticResource CompactButton}" Margin="0,0,8,0" Command="{Binding BrowseLiveryArchiveCommand}"/>
+                        <Button Content="Another folder..." Style="{StaticResource CompactButton}" Command="{Binding BrowseLiverySourceCommand}"/>
+                    </StackPanel>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Width="300" Height="180" Background="#0A0D11" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1" CornerRadius="6" VerticalAlignment="Top">
+                        <Grid>
+                            <Image Source="{Binding SelectedLivery.ThumbnailPath, Converter={StaticResource FilePathToImage}}" Stretch="Uniform" Margin="4"/>
+                            <TextBlock Text="No preview image in this livery" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11"
+                                       Foreground="{StaticResource TextMutedBrush}"
+                                       Visibility="{Binding SelectedLivery.ThumbnailPath, Converter={StaticResource NullToInverseVisibility}}"/>
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" Margin="20,0,0,0">
+                        <ComboBox ItemsSource="{Binding DetectedLiveries}" SelectedItem="{Binding SelectedLivery}" Margin="0,0,0,14">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding BaseFolderName}" TextTrimming="CharacterEllipsis"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <CheckBox IsChecked="{Binding UseDynamicRegistration}" Visibility="{Binding SelectedLivery.HasDr, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel>
+                                <TextBlock Text="Use the Dynamic Registration variant" FontSize="13"/>
+                                <TextBlock Foreground="{StaticResource TextMutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,2,0,0"
+                                           Text="Recommended when available. It lets the game put the plane's own registration on the tail."/>
+                            </StackPanel>
+                        </CheckBox>
+                        <Border Style="{StaticResource Tag}" BorderBrush="{StaticResource BorderStrongBrush}" HorizontalAlignment="Left" Margin="0,12,0,0" Padding="9,4"
+                                Visibility="{Binding SelectedLivery.HasDr, Converter={StaticResource InverseBoolToVisibility}}">
+                            <TextBlock Text="NO DYNAMIC REGISTRATION VARIANT" FontFamily="{StaticResource MonoFont}" FontSize="9" Foreground="{StaticResource TextMutedBrush}"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
             </StackPanel>
         </Border>
 
-        <CheckBox Grid.Row="4" Content="Use the Dynamic Registration variant (recommended, when available)"
-                  IsChecked="{Binding UseDynamicRegistration}" Margin="0,0,0,20"
-                  IsEnabled="{Binding SelectedLivery.HasDr}"/>
-
-        <TextBlock Grid.Row="5" Text="{Binding StatusMessage}" Foreground="{Binding StatusMessageColor}" TextWrapping="Wrap" Margin="0,0,0,20"
-                   FontFamily="{StaticResource MonoFont}" FontSize="12"/>
-
-        <StackPanel Grid.Row="6" Orientation="Horizontal" Margin="0,0,0,20">
-            <Button Content="Generate preview" Style="{StaticResource SecondaryButton}" Command="{Binding GeneratePreviewCommand}" Margin="0,0,10,0"/>
-            <Button Content="Apply" Command="{Binding ApplyLiveryCommand}"
-                    IsEnabled="{Binding CanApply}"/>
+        <!-- Why the chosen folder couldn't be used, or why the livery may be for another aircraft. -->
+        <StackPanel Grid.Row="3">
+            <local:Callout Margin="0,0,0,20" Text="{Binding SourceProblemMessage}"
+                           Visibility="{Binding SourceProblemMessage, Converter={StaticResource StringToVisibility}}"/>
+            <local:Callout Margin="0,0,0,20" Text="{Binding AircraftWarning}"
+                           Visibility="{Binding AircraftWarning, Converter={StaticResource StringToVisibility}}"/>
         </StackPanel>
 
-        <Border Grid.Row="7" Style="{StaticResource Card}" Padding="20"
+        <TextBlock Grid.Row="4" Text="{Binding StatusMessage}" Foreground="{Binding StatusMessageColor}" TextWrapping="Wrap" Margin="0,0,0,20"
+                   FontFamily="{StaticResource MonoFont}" FontSize="12"
+                   Visibility="{Binding StatusMessage, Converter={StaticResource StringToVisibility}}"/>
+
+        <StackPanel Grid.Row="5" Margin="0,0,0,20">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Generate preview" Style="{StaticResource SecondaryButton}" Command="{Binding GeneratePreviewCommand}" Margin="0,0,10,0"
+                        IsEnabled="{Binding CanGeneratePreview}"/>
+                <Button Content="Apply" Command="{Binding ApplyLiveryCommand}"
+                        IsEnabled="{Binding CanApply}"/>
+            </StackPanel>
+            <!-- Copying a big livery takes a moment: show that something is happening. -->
+            <local:BusyBar Margin="0,16,0,0" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}"/>
+        </StackPanel>
+
+        <Border Grid.Row="6" Style="{StaticResource Card}" Padding="20"
                 Visibility="{Binding Preview, Converter={StaticResource NullToVisibility}}">
             <StackPanel>
-                <TextBlock Text="{Binding Preview.PackageFolder}" FontFamily="{StaticResource MonoFont}" FontSize="12" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,8" TextWrapping="Wrap"/>
+                <TextBlock Text="WHAT WILL BE ADDED" Style="{StaticResource SectionLabel}" Margin="0,0,0,8"/>
+                <TextBlock Text="{Binding PreviewSummary}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                <TextBlock Text="{Binding Preview.PackageFolder}" FontFamily="{StaticResource MonoFont}" FontSize="11" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,10" TextWrapping="Wrap"/>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                     <Border BorderThickness="1" CornerRadius="4" Padding="9,5" BorderBrush="#1B4A57" Background="#0E1A1F" Margin="0,0,8,0">
                         <TextBlock Text="{Binding Preview.WinningLiveryName}" FontFamily="{StaticResource MonoFont}" FontSize="10" Foreground="{StaticResource AccentBrush}"/>
@@ -83,6 +147,10 @@
                         <TextBlock Text="OFFICIAL NOT MODIFIED" FontFamily="{StaticResource MonoFont}" FontSize="10" Foreground="{StaticResource TextMutedBrush}"/>
                     </Border>
                 </StackPanel>
+
+                <local:Callout Margin="0,0,0,16" Text="{Binding DiskSpaceWarning}"
+                               Visibility="{Binding DiskSpaceWarning, Converter={StaticResource StringToVisibility}}"/>
+
                 <TextBlock Text="FILES THAT WILL BE COPIED" Style="{StaticResource SectionLabel}" Margin="0,0,0,8"/>
                 <ListBox ItemsSource="{Binding Preview.Files}" MaxHeight="200" Background="Transparent" BorderThickness="0">
                     <ListBox.ItemTemplate>
@@ -95,6 +163,15 @@
         </Border>
     </Grid>
     </ScrollViewer>
+
+    <!-- Shown while a folder is dragged over the window: the whole screen is the drop target. -->
+    <Grid Background="#E60A0D11" IsHitTestVisible="False" Visibility="{Binding IsDragOver, Converter={StaticResource BoolToVisibility}}">
+        <Rectangle Margin="24" RadiusX="12" RadiusY="12" Stroke="{StaticResource AccentBrush}" StrokeThickness="2" StrokeDashArray="4 4"/>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Path Style="{StaticResource Icon}" Data="{StaticResource IconDropIn}" Stroke="{StaticResource AccentBrush}" Width="30" Height="30" Margin="0,0,0,12" StrokeThickness="1.4"/>
+            <TextBlock Text="Drop to load this livery" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+        </StackPanel>
+    </Grid>
 
     <!-- Success modal -->
     <Grid Background="#B3000000" Visibility="{Binding ShowSuccessModal, Converter={StaticResource BoolToVisibility}}">
@@ -111,7 +188,10 @@
                            TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,10"/>
                 <TextBlock Text="{Binding SuccessPackageFolder}" FontFamily="{StaticResource MonoFont}" FontSize="10" Foreground="{StaticResource AccentBrush}"
                            TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,22"/>
-                <Button Content="OK" Padding="32,10" HorizontalAlignment="Center" Command="{Binding CloseSuccessModalCommand}"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Content="Open package folder" Style="{StaticResource SecondaryButton}" Padding="20,10" Margin="0,0,10,0" Command="{Binding OpenPackageFolderCommand}"/>
+                    <Button Content="OK" Padding="32,10" Command="{Binding CloseSuccessModalCommand}"/>
+                </StackPanel>
             </StackPanel>
         </Border>
     </Grid>

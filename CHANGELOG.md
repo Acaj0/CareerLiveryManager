@@ -2,6 +2,14 @@
 
 This file always lists every release, newest first, with a link to that version's full notes in [`docs/changelog/`](docs/changelog). Bookmark this page - it's the one link that always shows the current state.
 
+## [v1.3.0](docs/changelog/v1.3.0.md)
+- Added: drop a livery `.zip`, `.rar` or `.7z` (or its folder) onto the Apply screen and the app extracts it for you.
+- Added: a setup check that explains wrong Official/Community folders, with one-click fixes.
+- Added: *Options > Export diagnostic report* for bug reports (nothing is uploaded, your Windows user name is hidden).
+- Added: aircraft list filters and Career-activity badges, a size and disk-space summary in the preview, a progress bar, and a safer remove confirmation.
+- Changed: clearer messages when a chosen folder isn't a usable livery; log rotation; dark scrollbars.
+- Fixed: the preview listed wrong file paths for a Dynamic Registration livery on a Career activity.
+
 ## [v1.2.4](docs/changelog/v1.2.4.md)
 - Fixed: Cessna 208B Grand Caravan EX Career activity liveries showed the official scheme's branding/color through parts the third-party livery didn't cover - same fix as the 737 MAX, scoped to the Caravan only.
 
