@@ -3,9 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:CareerLiveryManager.App.ViewModels"
+             xmlns:local="clr-namespace:CareerLiveryManager.App.Views"
              mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="450">
     <Grid Margin="40,18,40,32" Background="{StaticResource CanvasBrush}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -16,16 +20,55 @@
             <TextBlock Text="Detected aircraft" FontSize="26" FontWeight="Bold"/>
         </StackPanel>
 
-        <DockPanel Grid.Row="1" Margin="0,0,0,16">
+        <DockPanel Grid.Row="1" Margin="0,0,0,12">
             <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,10,0" DockPanel.Dock="Left" Foreground="{StaticResource TextMutedBrush}"/>
             <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
         </DockPanel>
 
-        <TextBlock Grid.Row="2" Text="{Binding StatusMessage}" Foreground="{StaticResource TextMutedBrush}"
+        <!-- Filter chips: they narrow the list the search box already narrows. -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,16">
+            <RadioButton GroupName="AircraftFilter" Style="{StaticResource FilterChip}" IsChecked="True"
+                         Command="{Binding SetFilterCommand}" CommandParameter="{x:Static vm:AircraftFilter.All}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="All" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+                    <TextBlock Text="{Binding AllCount}" FontFamily="{StaticResource MonoFont}" FontSize="10" Margin="8,1,0,0" Opacity="0.7"
+                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+                </StackPanel>
+            </RadioButton>
+            <RadioButton GroupName="AircraftFilter" Style="{StaticResource FilterChip}"
+                         Command="{Binding SetFilterCommand}" CommandParameter="{x:Static vm:AircraftFilter.Installed}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="With my liveries" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+                    <TextBlock Text="{Binding InstalledCount}" FontFamily="{StaticResource MonoFont}" FontSize="10" Margin="8,1,0,0" Opacity="0.7"
+                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+                </StackPanel>
+            </RadioButton>
+            <RadioButton GroupName="AircraftFilter" Style="{StaticResource FilterChip}"
+                         Command="{Binding SetFilterCommand}" CommandParameter="{x:Static vm:AircraftFilter.WithActivities}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="With Career activities" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+                    <TextBlock Text="{Binding WithActivitiesCount}" FontFamily="{StaticResource MonoFont}" FontSize="10" Margin="8,1,0,0" Opacity="0.7"
+                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+                </StackPanel>
+            </RadioButton>
+        </StackPanel>
+
+        <!-- Explains results that look like a bug but aren't (setup validator rules S09/S10). -->
+        <local:Callout Grid.Row="3" Kind="Info" Margin="0,0,0,16" Text="{Binding InfoMessage}"
+                       Visibility="{Binding InfoMessage, Converter={StaticResource StringToVisibility}}"/>
+
+        <TextBlock Grid.Row="4" Text="{Binding StatusMessage}" Foreground="{StaticResource TextMutedBrush}"
                     Visibility="{Binding StatusMessage, Converter={StaticResource StringToVisibility}}"
                     HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
-        <ScrollViewer x:Name="GridScroller" Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <!-- Search or a chip hides everything: say why and offer the way back. -->
+        <StackPanel Grid.Row="4" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,40"
+                    Visibility="{Binding NoMatchMessage, Converter={StaticResource StringToVisibility}}">
+            <TextBlock Text="{Binding NoMatchMessage}" Foreground="{StaticResource TextMutedBrush}" FontSize="14" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="420" Margin="0,0,0,16"/>
+            <Button Content="Show all aircraft" Style="{StaticResource CompactButton}" HorizontalAlignment="Center" Command="{Binding ClearFiltersCommand}"/>
+        </StackPanel>
+
+        <ScrollViewer x:Name="GridScroller" Grid.Row="4" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <ItemsControl ItemsSource="{Binding Aircraft}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -72,6 +115,13 @@
                                 <TextBlock Grid.Row="2" Text="Not supported" Foreground="{StaticResource WarningBrush}" HorizontalAlignment="Center" Margin="0,4,0,0" FontSize="11"
                                            ToolTip="This aircraft doesn't use livery.cfg (old format) and isn't compatible with this tool."
                                            Visibility="{Binding IsSupported, Converter={StaticResource InverseBoolToVisibility}}"/>
+
+                                <!-- Aircraft with Career jobs say so up front, so you know a click leads to a per-job choice. -->
+                                <Border Grid.Row="2" Margin="0,6,0,0" HorizontalAlignment="Center" VerticalAlignment="Top"
+                                        BorderThickness="1" CornerRadius="4" Padding="7,2" BorderBrush="#1B4A57" Background="#0E1A1F"
+                                        Visibility="{Binding ActivityCount, Converter={StaticResource CountToVisibility}}">
+                                    <TextBlock Text="{Binding ActivityBadgeText}" FontFamily="{StaticResource MonoFont}" FontSize="9" Foreground="{StaticResource AccentBrush}"/>
+                                </Border>
 
                                 <Button Grid.Row="4" Content="Choose" HorizontalAlignment="Center" Margin="0,10,0,0"
                                         Command="{Binding DataContext.ChooseCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"

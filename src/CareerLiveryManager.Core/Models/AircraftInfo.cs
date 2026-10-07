@@ -23,6 +23,18 @@ public sealed class AircraftInfo
 
     public bool HasActivities => Activities.Count > 0;
 
+    /// <summary>How many Career jobs (Cargo, Flightseeing...) can get their own livery. The generic
+    /// "Default" slot isn't a job, so it isn't counted.</summary>
+    public int ActivityCount => Activities.Count(a => !a.IsGenericSlot);
+
+    /// <summary>"3 activities" / "1 activity", or empty when the aircraft has none.</summary>
+    public string ActivityBadgeText => ActivityCount switch
+    {
+        0 => string.Empty,
+        1 => "1 activity",
+        var n => $"{n} activities",
+    };
+
     /// <summary>Set by the ViewModel after construction when a Career Livery Manager
     /// package is already installed for this aircraft; overrides <see cref="ThumbnailPath"/> in the UI.</summary>
     public string? InstalledLiveryThumbnailPath { get; set; }

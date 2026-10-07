@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    # Windows because the solution contains a WPF project. The tests themselves only reference
+    # CareerLiveryManager.Core and don't need it, but building the whole solution catches a Core
+    # change that breaks the app.
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build solution
+        run: dotnet build CareerLiveryManager.sln --configuration Release
+
+      - name: Test
+        run: dotnet test tests/CareerLiveryManager.Core.Tests --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: tests/CareerLiveryManager.Core.Tests/TestResults/*.trx

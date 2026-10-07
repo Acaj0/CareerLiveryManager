@@ -56,6 +56,8 @@
                     <Button.ContextMenu>
                         <ContextMenu Placement="Bottom">
                             <MenuItem Header="Open logs" Command="{Binding OpenLogsCommand}"/>
+                            <MenuItem Header="Export diagnostic report..." Command="{Binding ExportDiagnosticReportCommand}"/>
+                            <MenuItem Header="Copy diagnostic summary" Command="{Binding CopyDiagnosticSummaryCommand}"/>
                             <MenuItem Header="Change folders" Command="{Binding ChangeFoldersCommand}"/>
                             <MenuItem Header="View updates" Command="{Binding OpenChangelogCommand}"/>
                             <MenuItem Header="View roadmap" Command="{Binding OpenRoadmapCommand}"/>
