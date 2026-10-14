@@ -2,6 +2,9 @@
 
 This file always lists every release, newest first, with a link to that version's full notes in [`docs/changelog/`](docs/changelog). Bookmark this page - it's the one link that always shows the current state.
 
+## [v1.3.1](docs/changelog/v1.3.1.md)
+- Added: a **Community** screen (header button) with livery creators to follow (MR Liveries, Kiwi Flight Sim) and recommended apps, starting with the MSFS Livery Toolkit.
+
 ## [v1.3.0](docs/changelog/v1.3.0.md)
 - Added: drop a livery `.zip`, `.rar` or `.7z` (or its folder) onto the Apply screen and the app extracts it for you.
 - Added: a setup check that explains wrong Official/Community folders, with one-click fixes.

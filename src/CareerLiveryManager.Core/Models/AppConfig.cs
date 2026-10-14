@@ -11,4 +11,7 @@ public sealed class AppConfig
 
     /// <summary>Whether the app checks GitHub Releases for a newer version on startup.</summary>
     public bool CheckForUpdates { get; set; } = true;
+
+    /// <summary>Set once the Community screen has been opened; the red badge on its header button disappears after that.</summary>
+    public bool CommunityVisited { get; set; }
 }

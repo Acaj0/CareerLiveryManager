@@ -470,5 +470,8 @@
         <DataTemplate DataType="{x:Type vm:InstalledPackagesViewModel}">
             <views:InstalledPackagesView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:CommunityViewModel}">
+            <views:CommunityView/>
+        </DataTemplate>
     </Application.Resources>
 </Application>

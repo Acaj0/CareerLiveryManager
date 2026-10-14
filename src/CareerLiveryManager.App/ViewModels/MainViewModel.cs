@@ -70,10 +70,18 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _checkForUpdatesEnabled = true;
 
+    /// <summary>Red notification badge on the Community button, shown until the screen is first opened.</summary>
+    [ObservableProperty]
+    private bool _showCommunityBadge;
+
+    public int CommunityBadgeCount => CommunityCatalog.Creators.Count + CommunityCatalog.RecommendedApps.Count;
+
     public MainViewModel()
     {
         _currentViewModel = null!;
-        CheckForUpdatesEnabled = _configService.Load().CheckForUpdates;
+        var startupConfig = _configService.Load();
+        CheckForUpdatesEnabled = startupConfig.CheckForUpdates;
+        ShowCommunityBadge = !startupConfig.CommunityVisited;
         // Folders a dropped .zip was extracted to are normally deleted when the screen is left; this removes
         // any a crash or forced close left behind. Best effort, off the UI thread.
         _ = Task.Run(() => new ArchiveExtractor().CleanupStale(TimeSpan.FromHours(12)));
@@ -259,6 +267,23 @@ public sealed partial class MainViewModel : ObservableObject
                 GoToAircraftList();
             }
         };
+        CurrentViewModel = vm;
+        ShowHeader = true;
+    }
+
+    [RelayCommand]
+    private void GoToCommunity()
+    {
+        if (ShowCommunityBadge)
+        {
+            ShowCommunityBadge = false;
+            var config = _configService.Load();
+            config.CommunityVisited = true;
+            _configService.Save(config);
+        }
+
+        var vm = new CommunityViewModel(_log);
+        vm.BackRequested += (_, _) => GoToAircraftList();
         CurrentViewModel = vm;
         ShowHeader = true;
     }
