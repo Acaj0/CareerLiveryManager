@@ -89,7 +89,7 @@ internal sealed class ApplyScenario : IDisposable
 
     /// <summary>The activity as the app's own detector reports it for the folders created so far.</summary>
     public AircraftActivityInfo Activity(string activityKey) =>
-        new CareerActivityDetector().DetectActivities(VendorPath).Single(a => a.ActivityKey == activityKey);
+        new CareerActivityDetector().DetectActivities(VendorPath, SimObject).Single(a => a.ActivityKey == activityKey);
 
     // ---- Third-party livery download ---------------------------------------------------------
 

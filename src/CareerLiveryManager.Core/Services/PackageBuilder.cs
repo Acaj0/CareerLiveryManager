@@ -79,6 +79,22 @@ public sealed class PackageBuilder
     };
 
     /// <summary>
+    /// The PC-12 NGX (Pilatus) has per-role official schemes (livery_NN_m = medevac, _c = cargo,
+    /// _vip = VIP charter - see <see cref="CareerActivityDetector"/>), several made of the same split
+    /// model parts as the Caravan. Same invisible part-backfill as the Caravan, scoped to this
+    /// SimObject only. UNTESTED in-game as of this change - needs a real PC-12 owner to confirm.
+    /// </summary>
+    private const string Pc12SimObjectName = "microsoft_pc12_ngx";
+
+    /// <summary>The medevac scheme's own decal (cross and "air ambulance" text), present in the
+    /// official _m slot's model.airframe, model.tail and wing tips - confirmed by decompressing the
+    /// real Official geometry.</summary>
+    private static readonly HashSet<string> Pc12AirframeDecalMaterialsToHide = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "DECAL_MEDICAL",
+    };
+
+    /// <summary>
     /// Fallback tint for <see cref="MakeMaterialsInvisible"/>'s rewritten materials. In practice the
     /// alpha is pushed low enough that the part renders effectively invisible regardless of this
     /// RGB, but it's set to an approximation of real "aircraft white" (sampled from the brightest,
@@ -197,6 +213,14 @@ public sealed class PackageBuilder
                 var neutralCandidate = Path.Combine(request.Aircraft.VendorPath, activity.ActivityKey + CaravanNeutralStaticSuffix);
                 var neutralFolder = Directory.Exists(neutralCandidate) ? neutralCandidate : officialActivityFolder;
                 FillMissingOfficialActivityFiles(winningDest, officialActivityFolder, neutralFolder, CaravanAirframeDecalMaterialsToHide, notes);
+            }
+            else if (string.Equals(request.Aircraft.SimObjectName, Pc12SimObjectName, StringComparison.OrdinalIgnoreCase))
+            {
+                // Model parts only: with no neutral scheme to substitute from, copying the official
+                // role scheme's loose textures would shadow the livery's own fallback textures with
+                // the official (e.g. ambulance) paint.
+                var officialActivityFolder = Path.Combine(request.Aircraft.VendorPath, activity.OfficialFolderName);
+                FillMissingOfficialActivityFiles(winningDest, officialActivityFolder, officialActivityFolder, Pc12AirframeDecalMaterialsToHide, notes, backfillLooseFiles: false);
             }
 
             var activityCfgPath = Path.Combine(winningDest, "livery.cfg");
@@ -355,7 +379,7 @@ public sealed class PackageBuilder
     /// Loose files outside model.* (the texture set) still use the simpler fill-only-what's-missing
     /// rule, keyed by exact file name.
     /// </summary>
-    private static void FillMissingOfficialActivityFiles(string winningDest, string officialActivityFolder, string neutralFolder, HashSet<string> airframeDecalMaterialsToHide, List<string> notes)
+    private static void FillMissingOfficialActivityFiles(string winningDest, string officialActivityFolder, string neutralFolder, HashSet<string> airframeDecalMaterialsToHide, List<string> notes, bool backfillLooseFiles = true)
     {
         if (!Directory.Exists(officialActivityFolder))
         {
@@ -410,6 +434,11 @@ public sealed class PackageBuilder
                     File.WriteAllBytes(gltfFile, patched);
                 }
             }
+        }
+
+        if (!backfillLooseFiles)
+        {
+            return;
         }
 
         foreach (var officialFile in Directory.EnumerateFiles(officialActivityFolder, "*", SearchOption.AllDirectories))

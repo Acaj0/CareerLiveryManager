@@ -123,6 +123,18 @@ public sealed class InstalledPackagesManagerTests : IDisposable
     }
 
     [Fact]
+    public void Remove_DeletesAPackageContainingReadOnlyFiles()
+    {
+        var ours = Package("ours", "{\"creator\":\"CareerLiveryManager\"}");
+        var panel = _tree.Write(Path.Combine(ours, "simobjects", "airplanes", "microsoft_pc12_ngx", "panel.cfg"), "x");
+        File.SetAttributes(panel, FileAttributes.ReadOnly);
+
+        _manager.Remove(ours);
+
+        Assert.False(Directory.Exists(ours));
+    }
+
+    [Fact]
     public void Remove_OfAFolderThatIsAlreadyGone_DoesNothing()
     {
         _manager.Remove(Path.Combine(Community, "gone"));

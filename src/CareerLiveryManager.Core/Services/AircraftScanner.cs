@@ -107,7 +107,7 @@ public sealed class AircraftScanner
             // that fully support the livery.cfg mechanism for third-party Community liveries.
             // Whether livery.cfg is actually supported can only be verified once the user picks a
             // livery source folder (see LiverySourceInspector) - not from the official package.
-            var activities = _activityDetector.DetectActivities(c.VendorDir);
+            var activities = _activityDetector.DetectActivities(c.VendorDir, c.SimObjectName);
 
             result.Add(new AircraftInfo
             {

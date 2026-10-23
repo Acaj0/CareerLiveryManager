@@ -24,13 +24,20 @@ public sealed partial class AircraftDetailViewModel : ObservableObject
     {
         Aircraft = aircraft;
 
-        var installed = installedPackagesManager.List(config.CommunityPath)
-            .Where(p => string.Equals(p.AircraftSimObjectName, aircraft.SimObjectName, StringComparison.OrdinalIgnoreCase) && p.HasActivity)
+        var allInstalled = installedPackagesManager.List(config.CommunityPath)
+            .Where(p => string.Equals(p.AircraftSimObjectName, aircraft.SimObjectName, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        var installed = allInstalled
+            .Where(p => p.HasActivity)
             .ToDictionary(p => p.ActivityKey, StringComparer.OrdinalIgnoreCase);
+        var standardRecipePackage = allInstalled.FirstOrDefault(p => !p.HasActivity);
 
         foreach (var activity in aircraft.Activities)
         {
-            if (installed.TryGetValue(activity.ActivityKey, out var package))
+            var package = activity.UsesStandardRecipe
+                ? standardRecipePackage
+                : installed.GetValueOrDefault(activity.ActivityKey);
+            if (package is not null)
             {
                 activity.IsInstalled = true;
                 activity.InstalledThumbnailPath = package.ThumbnailPath;

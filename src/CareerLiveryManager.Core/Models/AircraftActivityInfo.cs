@@ -25,6 +25,13 @@ public sealed class AircraftActivityInfo
     public bool IsGenericSlot { get; init; }
 
     /// <summary>
+    /// True for an entry that is not an official slot at all: it applies the plain single-livery
+    /// recipe (one livery for the whole aircraft), exactly as aircraft without activities do. Used by
+    /// aircraft that gained per-role slots but must keep that option available.
+    /// </summary>
+    public bool UsesStandardRecipe { get; init; }
+
+    /// <summary>
     /// Value to write as [Specialization] dressing_codes in the override's livery.cfg.
     /// Empty for the generic slot, which doesn't check tags at all.
     /// </summary>

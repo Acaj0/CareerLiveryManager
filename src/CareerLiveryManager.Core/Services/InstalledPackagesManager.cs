@@ -73,10 +73,23 @@ public sealed class InstalledPackagesManager
 
     public void Remove(string packageFolder)
     {
-        if (Directory.Exists(packageFolder))
+        if (!Directory.Exists(packageFolder))
         {
-            Directory.Delete(packageFolder, recursive: true);
+            return;
         }
+
+        // Files copied from a third-party download can keep a read-only attribute (the PC-12's
+        // panel.cfg did), which makes Directory.Delete throw UnauthorizedAccessException.
+        foreach (var file in Directory.EnumerateFiles(packageFolder, "*", SearchOption.AllDirectories))
+        {
+            var attributes = File.GetAttributes(file);
+            if ((attributes & FileAttributes.ReadOnly) != 0)
+            {
+                File.SetAttributes(file, attributes & ~FileAttributes.ReadOnly);
+            }
+        }
+
+        Directory.Delete(packageFolder, recursive: true);
     }
 
     private static string GetString(JsonElement root, string propertyName) =>

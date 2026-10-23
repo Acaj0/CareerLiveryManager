@@ -44,13 +44,18 @@ public sealed partial class CareerActivityDetector
     /// that don't use this naming convention at all (the single-livery aircraft this app already
     /// supported before, e.g. Longitude, CJ4) - those keep using the existing recipe untouched.
     /// </summary>
-    public IReadOnlyList<AircraftActivityInfo> DetectActivities(string vendorLiveriesPath)
+    public IReadOnlyList<AircraftActivityInfo> DetectActivities(string vendorLiveriesPath, string? simObjectName = null)
     {
         var result = new List<AircraftActivityInfo>();
 
         if (!Directory.Exists(vendorLiveriesPath))
         {
             return result;
+        }
+
+        if (string.Equals(simObjectName, Pc12SimObjectName, StringComparison.OrdinalIgnoreCase))
+        {
+            return DetectPc12Activities(vendorLiveriesPath);
         }
 
         var slotsByActivity = new Dictionary<string, List<(string FolderName, int Number)>>(StringComparer.OrdinalIgnoreCase);
@@ -135,6 +140,98 @@ public sealed partial class CareerActivityDetector
         }
 
         return result.OrderBy(a => a.IsGenericSlot).ThenBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    private const string Pc12SimObjectName = "microsoft_pc12_ngx";
+
+    // livery_03 (plain), livery_03_c, livery_03_m, livery_03_vip, livery_04_vip_4 ...
+    [GeneratedRegex(@"^livery_(?<num>\d+)_(?<role>c|m|vip)(?:_(?<variant>\d+))?$", RegexOptions.IgnoreCase)]
+    private static partial Regex Pc12RoleSlotRegex();
+
+    private static readonly (string Suffix, string ActivityKey)[] Pc12Roles =
+    {
+        ("m", "medevac"),
+        ("c", "cargo"),
+        ("vip", "private"),
+    };
+
+    /// <summary>
+    /// The PC-12 NGX doesn't use the "&lt;activity&gt;_freelance_NN" convention. Its official schemes
+    /// come in role variants of the same paint: livery_03_m is the medevac one (its thumbnail is an
+    /// air ambulance), _c is believed to be cargo and _vip VIP charter (inferred from the names, not
+    /// verified in-game). Each role is mapped to its lowest-numbered folder, like every other
+    /// aircraft's single freelance slot. The plain schemes (livery_NN) are not a role: a "Default"
+    /// entry keeps the single-livery recipe available so nothing that worked before is lost.
+    /// </summary>
+    private static IReadOnlyList<AircraftActivityInfo> DetectPc12Activities(string vendorLiveriesPath)
+    {
+        var slots = new List<(string Folder, string Suffix, int Num, int Variant)>();
+        string? firstPlainFolder = null;
+        var firstPlainNumber = int.MaxValue;
+
+        foreach (var dir in Directory.EnumerateDirectories(vendorLiveriesPath))
+        {
+            var name = Path.GetFileName(dir);
+            var match = Pc12RoleSlotRegex().Match(name);
+            if (match.Success)
+            {
+                var variant = match.Groups["variant"].Success ? int.Parse(match.Groups["variant"].Value) : 0;
+                slots.Add((name, match.Groups["role"].Value.ToLowerInvariant(), int.Parse(match.Groups["num"].Value), variant));
+                continue;
+            }
+
+            var plain = Regex.Match(name, @"^livery_(\d+)$", RegexOptions.IgnoreCase);
+            if (plain.Success && int.Parse(plain.Groups[1].Value) < firstPlainNumber)
+            {
+                firstPlainFolder = name;
+                firstPlainNumber = int.Parse(plain.Groups[1].Value);
+            }
+        }
+
+        var result = new List<AircraftActivityInfo>();
+
+        foreach (var (suffix, activityKey) in Pc12Roles)
+        {
+            var winner = slots
+                .Where(s => s.Suffix == suffix)
+                .OrderBy(s => s.Num).ThenBy(s => s.Variant)
+                .Select(s => s.Folder)
+                .FirstOrDefault();
+            if (winner is null)
+            {
+                continue;
+            }
+
+            var definition = ActivityDefinitions[activityKey];
+            result.Add(new AircraftActivityInfo
+            {
+                ActivityKey = activityKey,
+                DisplayName = definition.DisplayName,
+                OfficialFolderName = winner,
+                IsGenericSlot = false,
+                DressingCodes = definition.DressingCodes,
+                LicenceTag = definition.LicenceTag,
+                DefaultThumbnailPath = FindThumbnail(Path.Combine(vendorLiveriesPath, winner)),
+            });
+        }
+
+        if (result.Count == 0)
+        {
+            return result;
+        }
+
+        result = result.OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase).ToList();
+        result.Add(new AircraftActivityInfo
+        {
+            ActivityKey = "default",
+            DisplayName = "Default (all other PC-12 jobs)",
+            OfficialFolderName = firstPlainFolder ?? string.Empty,
+            IsGenericSlot = true,
+            UsesStandardRecipe = true,
+            DefaultThumbnailPath = firstPlainFolder is null ? null : FindThumbnail(Path.Combine(vendorLiveriesPath, firstPlainFolder)),
+        });
+
+        return result;
     }
 
     private static string? FindThumbnail(string slotFolderPath)

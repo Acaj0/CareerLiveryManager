@@ -246,7 +246,7 @@ public sealed partial class MainViewModel : ObservableObject
     {
         var config = _configService.Load();
         var vm = new AircraftDetailViewModel(aircraft, _installedPackagesManager, config);
-        vm.ActivityChosen += (_, activity) => GoToApplyLivery(aircraft, activity);
+        vm.ActivityChosen += (_, activity) => GoToApplyLivery(aircraft, activity.UsesStandardRecipe ? null : activity);
         vm.BackRequested += (_, _) => GoToAircraftList();
         CurrentViewModel = vm;
         ShowHeader = true;
