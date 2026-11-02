@@ -2,6 +2,9 @@
 
 This file always lists every release, newest first, with a link to that version's full notes in [`docs/changelog/`](docs/changelog). Bookmark this page - it's the one link that always shows the current state.
 
+## [v1.3.3](docs/changelog/v1.3.3.md)
+- Changed: the Pilatus PC-12 NGX is back to a single livery for the whole aircraft; the per-role entries from v1.3.2 are removed (the game doesn't pick a livery per role for it, and the override could leave the plane unpainted). Applying a livery also removes any leftover v1.3.2 role package.
+
 ## [v1.3.2](docs/changelog/v1.3.2.md)
 - Added: Pilatus PC-12 NGX liveries per role (Medevac, Cargo, Private Charter) with a "Default" entry that keeps the old behaviour - experimental, not yet confirmed in-game.
 - Fixed: replacing a livery failed on read-only files (e.g. `panel.cfg`) and left a half-deleted package behind.

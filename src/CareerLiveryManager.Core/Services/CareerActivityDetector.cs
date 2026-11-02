@@ -11,6 +11,17 @@ namespace CareerLiveryManager.Core.Services;
 /// </summary>
 public sealed partial class CareerActivityDetector
 {
+    private readonly bool _enablePc12Roles;
+
+    /// <param name="enablePc12Roles">PC-12 NGX per-role slots. Off by default: in-game testing (v1.3.2)
+    /// showed the game doesn't pick a livery per role for this aircraft, and the override broke the
+    /// livery's paint, so the PC-12 is treated as an ordinary single-livery aircraft again. The
+    /// detection code is kept for when it can be tested with a real PC-12.</param>
+    public CareerActivityDetector(bool enablePc12Roles = false)
+    {
+        _enablePc12Roles = enablePc12Roles;
+    }
+
     private const string GenericSlotPrefix = "official";
     private const string FreelanceMode = "freelance";
 
@@ -53,7 +64,7 @@ public sealed partial class CareerActivityDetector
             return result;
         }
 
-        if (string.Equals(simObjectName, Pc12SimObjectName, StringComparison.OrdinalIgnoreCase))
+        if (_enablePc12Roles && string.Equals(simObjectName, Pc12SimObjectName, StringComparison.OrdinalIgnoreCase))
         {
             return DetectPc12Activities(vendorLiveriesPath);
         }

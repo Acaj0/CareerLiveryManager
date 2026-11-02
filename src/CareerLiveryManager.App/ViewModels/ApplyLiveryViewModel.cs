@@ -378,7 +378,9 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject, IDisposable
             // left behind.
             var previousPackages = _installedPackagesManager.List(_config.CommunityPath)
                 .Where(p => string.Equals(p.AircraftSimObjectName, Aircraft.SimObjectName, StringComparison.OrdinalIgnoreCase))
-                .Where(p => Activity is null ? !p.HasActivity : string.Equals(p.ActivityKey, Activity.ActivityKey, StringComparison.OrdinalIgnoreCase))
+                .Where(p => Activity is null
+                    ? !p.HasActivity || IsLeftoverPc12RolePackage(p)
+                    : string.Equals(p.ActivityKey, Activity.ActivityKey, StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
             if (previousPackages.Count > 0)
@@ -459,6 +461,12 @@ public sealed partial class ApplyLiveryViewModel : ObservableObject, IDisposable
             _log.Error($"Couldn't open the package folder '{SuccessPackageFolder}'.", ex);
         }
     }
+
+    // v1.3.2 briefly installed per-role packages for the PC-12 NGX; the aircraft is a single-livery
+    // one again, so applying a livery replaces any of those too instead of leaving them overriding
+    // the official role slots.
+    private bool IsLeftoverPc12RolePackage(InstalledPackageInfo package) =>
+        package.HasActivity && string.Equals(Aircraft.SimObjectName, "microsoft_pc12_ngx", StringComparison.OrdinalIgnoreCase);
 
     private void RefreshSimRunning() => IsSimRunning = _simProcessChecker.IsSimRunning();
 

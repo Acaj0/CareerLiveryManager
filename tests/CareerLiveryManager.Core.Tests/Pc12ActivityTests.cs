@@ -13,7 +13,7 @@ public sealed class Pc12ActivityTests : IDisposable
     private const string Pc12 = "microsoft_pc12_ngx";
 
     private readonly TestTree _tree = new();
-    private readonly CareerActivityDetector _detector = new();
+    private readonly CareerActivityDetector _detector = new(enablePc12Roles: true);
 
     public void Dispose() => _tree.Dispose();
 
@@ -30,6 +30,14 @@ public sealed class Pc12ActivityTests : IDisposable
     private void RealisticSlots() => Slots(
         "livery_01", "livery_02", "livery_02_c", "livery_03", "livery_03_c", "livery_03_m", "livery_03_vip",
         "livery_04_vip_4", "livery_04_vip_7", "livery_05_vip_5", "livery_05_vip_8", "livery_white");
+
+    [Fact]
+    public void ByDefault_ThePc12HasNoRoles_AndStaysAnOrdinarySingleLiveryAircraft()
+    {
+        RealisticSlots();
+
+        Assert.Empty(new CareerActivityDetector().DetectActivities(Vendor, Pc12));
+    }
 
     [Fact]
     public void RolesAreMappedBySuffix_ToTheLowestNumberedFolder()
