@@ -63,7 +63,124 @@ public sealed class LiverySourceInspector
             });
         }
 
-        return results;
+        return GroupCitationXVersions(results);
+    }
+
+    private const string CitationXSimObjectName = "c750";
+
+    /// <summary>
+    /// The Citation X comes in two aircraft versions (standard and winglets), and a livery for it ships
+    /// one folder pair per version, told apart by "required_tags" in livery.cfg. The winglets folders
+    /// hold no paint of their own: their texture.cfg borrows it from the standard folders, so the two
+    /// pairs only work together. Each winglets pair is attached to the standard pair it borrows from
+    /// (found by the folder name in its texture.cfg fallbacks, or by the usual "C750w_" / "C750_"
+    /// naming) and listed as one livery. Anything that doesn't fit this pattern - and every other
+    /// aircraft - is returned untouched.
+    /// </summary>
+    private static IReadOnlyList<LiverySourceInfo> GroupCitationXVersions(List<LiverySourceInfo> entries)
+    {
+        if (!entries.Any(e => string.Equals(e.DetectedSimObjectName, CitationXSimObjectName, StringComparison.OrdinalIgnoreCase)))
+        {
+            return entries;
+        }
+
+        var cfg = new LiveryCfgEditor();
+        bool IsCitationX(LiverySourceInfo e) => string.Equals(e.DetectedSimObjectName, CitationXSimObjectName, StringComparison.OrdinalIgnoreCase);
+        bool HasTag(LiverySourceInfo e, string tag)
+        {
+            var path = Path.Combine(e.BaseFolderPath, "livery.cfg");
+            var tags = File.Exists(path) ? cfg.ReadRequiredTags(path) : null;
+            return tags is not null && tags.Contains(tag, StringComparison.OrdinalIgnoreCase);
+        }
+
+        var winglets = entries.Where(e => IsCitationX(e) && HasTag(e, "winglets") && !HasTag(e, "standard")).ToList();
+        var standards = entries.Where(e => IsCitationX(e) && HasTag(e, "standard") && !HasTag(e, "winglets")).ToList();
+        if (winglets.Count == 0 || standards.Count == 0)
+        {
+            return entries;
+        }
+
+        var attached = new Dictionary<LiverySourceInfo, List<LiverySourceVariant>>();
+        var consumed = new HashSet<LiverySourceInfo>();
+
+        foreach (var w in winglets)
+        {
+            var owner = standards.FirstOrDefault(s => BorrowsFrom(w, s, cfg)) ?? standards.FirstOrDefault(s => SameLiveryByName(w, s));
+            if (owner is null)
+            {
+                continue;
+            }
+
+            if (!attached.TryGetValue(owner, out var list))
+            {
+                attached[owner] = list = new List<LiverySourceVariant>();
+            }
+
+            list.Add(new LiverySourceVariant
+            {
+                BaseFolderPath = w.BaseFolderPath,
+                BaseFolderName = w.BaseFolderName,
+                DrFolderPath = w.DrFolderPath,
+                DrFolderName = w.DrFolderName,
+            });
+            consumed.Add(w);
+        }
+
+        var result = new List<LiverySourceInfo>();
+        foreach (var entry in entries)
+        {
+            if (consumed.Contains(entry))
+            {
+                continue;
+            }
+
+            result.Add(attached.TryGetValue(entry, out var variants)
+                ? new LiverySourceInfo
+                {
+                    BaseFolderPath = entry.BaseFolderPath,
+                    BaseFolderName = entry.BaseFolderName,
+                    DrFolderPath = entry.DrFolderPath,
+                    DrFolderName = entry.DrFolderName,
+                    DetectedSimObjectName = entry.DetectedSimObjectName,
+                    ThumbnailPath = entry.ThumbnailPath,
+                    Variants = variants,
+                }
+                : entry);
+        }
+
+        return result;
+    }
+
+    /// <summary>True when any texture.cfg of the winglets pair names one of the standard pair's folders in a fallback.</summary>
+    private static bool BorrowsFrom(LiverySourceInfo winglets, LiverySourceInfo standard, LiveryCfgEditor cfg)
+    {
+        var wanted = new[] { standard.BaseFolderName, standard.DrFolderName }.Where(n => n is not null).ToList();
+        var folders = new[] { winglets.BaseFolderPath, winglets.DrFolderPath }.Where(p => p is not null);
+
+        foreach (var folder in folders)
+        {
+            foreach (var textureCfg in Directory.EnumerateFiles(folder!, "texture.cfg", SearchOption.AllDirectories))
+            {
+                foreach (var fallback in cfg.ReadAllFallbacks(textureCfg))
+                {
+                    var segments = fallback.Split('\\', '/');
+                    if (wanted.Any(n => segments.Contains(n, StringComparer.OrdinalIgnoreCase)))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>"C750w_N728QL" belongs with "C750_N728QL": the same names with a "w" after the prefix.</summary>
+    private static bool SameLiveryByName(LiverySourceInfo winglets, LiverySourceInfo standard)
+    {
+        var match = System.Text.RegularExpressions.Regex.Match(winglets.BaseFolderName, @"^(?<prefix>[^_]*?)w_(?<rest>.+)$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        return match.Success &&
+               string.Equals(standard.BaseFolderName, match.Groups["prefix"].Value + "_" + match.Groups["rest"].Value, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

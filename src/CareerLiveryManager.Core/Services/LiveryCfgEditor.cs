@@ -81,6 +81,69 @@ public sealed partial class LiveryCfgEditor
         return match?.Groups["value"].Value.Trim();
     }
 
+    /// <summary>Every "fallback.N" value in a texture.cfg, in file order.</summary>
+    public IReadOnlyList<string> ReadAllFallbacks(string textureCfgPath) =>
+        File.ReadLines(textureCfgPath)
+            .Select(l => AnyFallbackValueRegex().Match(l))
+            .Where(m => m.Success)
+            .Select(m => m.Groups["value"].Value.Trim())
+            .ToList();
+
+    /// <summary>The value of "required_tags" in a livery.cfg's [Selection] section, quotes removed
+    /// (e.g. "winglets"), or null when there is none.</summary>
+    public string? ReadRequiredTags(string liveryCfgPath)
+    {
+        var match = File.ReadLines(liveryCfgPath)
+            .Select(l => RequiredTagsRegex().Match(l))
+            .FirstOrDefault(m => m.Success);
+
+        return match?.Groups["value"].Value.Trim().Trim('"');
+    }
+
+    /// <summary>
+    /// Renames folder names inside every "fallback.N" path of a texture.cfg, e.g. turning
+    /// "..\..\C750_N728QL_DR\texture" into "..\..\!C750_N728QL_DR\texture" after that folder was
+    /// copied under a new name. Only whole path segments are replaced and the rest of each line
+    /// (spacing, other fallbacks) is left exactly as it was.
+    /// </summary>
+    public void RenameFallbackFolders(string textureCfgPath, IReadOnlyDictionary<string, string> renames)
+    {
+        var lines = File.ReadAllLines(textureCfgPath);
+        var changed = false;
+
+        for (var i = 0; i < lines.Length; i++)
+        {
+            var match = AnyFallbackValueRegex().Match(lines[i]);
+            if (!match.Success)
+            {
+                continue;
+            }
+
+            var value = match.Groups["value"];
+            var segments = value.Value.Split('\\');
+            var segmentChanged = false;
+            for (var s = 0; s < segments.Length; s++)
+            {
+                if (renames.TryGetValue(segments[s].Trim(), out var newName))
+                {
+                    segments[s] = newName;
+                    segmentChanged = true;
+                }
+            }
+
+            if (segmentChanged)
+            {
+                lines[i] = lines[i][..value.Index] + string.Join('\\', segments) + lines[i][(value.Index + value.Length)..];
+                changed = true;
+            }
+        }
+
+        if (changed)
+        {
+            File.WriteAllLines(textureCfgPath, lines);
+        }
+    }
+
     /// <summary>
     /// Writes (replacing any existing ones) the [Specialization]/[Tags] sections a Career
     /// "freelance" activity slot needs to win Freelancer-mode selection - see
@@ -140,6 +203,12 @@ public sealed partial class LiveryCfgEditor
 
     [GeneratedRegex(@"^\s*fallback\.1\s*=\s*(?<value>.+)$", RegexOptions.IgnoreCase)]
     private static partial Regex Fallback1ValueRegex();
+
+    [GeneratedRegex(@"^\s*fallback\.\d+\s*=\s*(?<value>.+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex AnyFallbackValueRegex();
+
+    [GeneratedRegex(@"^\s*required_tags\s*=\s*(?<value>.+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex RequiredTagsRegex();
 
     [GeneratedRegex(@"^\s*\[[^\]]+\]\s*$")]
     private static partial Regex AnySectionHeaderRegex();

@@ -247,6 +247,35 @@ public sealed class PackageBuilder
                 }
             }
         }
+        else if (IsCitationXFamily(request))
+        {
+            var (copies, renames) = PlanCitationXFamily(request);
+
+            foreach (var copy in copies)
+            {
+                CopyDirectoryRecursive(copy.Source, Path.Combine(vendorDestDir, copy.DestName));
+            }
+
+            // The creator's own fallbacks are kept as they are (the winglets pair borrows its paint
+            // from the standard pair); only references to folders that were just renamed are updated.
+            foreach (var copy in copies)
+            {
+                var dest = Path.Combine(vendorDestDir, copy.DestName);
+                foreach (var textureCfg in Directory.EnumerateFiles(dest, "texture.cfg", SearchOption.AllDirectories))
+                {
+                    _cfgEditor.RenameFallbackFolders(textureCfg, renames);
+                }
+
+                var liveryCfg = Path.Combine(dest, "livery.cfg");
+                if (copy.Winner && File.Exists(liveryCfg))
+                {
+                    _cfgEditor.SetLiveryName(liveryCfg, copy.DestName);
+                }
+            }
+
+            notes.Add($"Citation X: installed all {1 + request.Source.Variants.Count} aircraft versions of this livery together " +
+                      $"({string.Join(", ", copies.Where(c => c.Winner).Select(c => c.DestName))}) - the winglets folders borrow their paint from the standard ones.");
+        }
         else if (useDr)
         {
             // Base folder is kept WITHOUT "!" - it only exists so the DR variant's
@@ -976,11 +1005,64 @@ public sealed class PackageBuilder
         return null;
     }
 
+    private const string CitationXSimObjectName = "c750";
+
+    /// <summary>
+    /// A Citation X livery that comes in several aircraft versions (standard + winglets, grouped by
+    /// <see cref="LiverySourceInspector"/>). Only ever true for the c750 SimObject, so no other
+    /// aircraft's recipe is affected.
+    /// </summary>
+    private static bool IsCitationXFamily(ApplyLiveryRequest request) =>
+        request.Activity is null &&
+        request.Source.Variants.Count > 0 &&
+        string.Equals(request.Aircraft.SimObjectName, CitationXSimObjectName, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// For every aircraft version of the livery, the winning folder gets the "!" (so it sorts first):
+    /// the DR folder when Dynamic Registration is on and that version has one (its base stays loose,
+    /// unprefixed, as the paint source), otherwise the base folder itself. Returns what to copy and
+    /// which folder names changed, so fallbacks that point at a renamed folder can be updated.
+    /// </summary>
+    private static (List<(string Source, string DestName, bool Winner)> Copies, Dictionary<string, string> Renames) PlanCitationXFamily(ApplyLiveryRequest request)
+    {
+        var source = request.Source;
+        var members = new List<(string BasePath, string BaseName, string? DrPath, string? DrName)>
+        {
+            (source.BaseFolderPath, source.BaseFolderName, source.DrFolderPath, source.DrFolderName),
+        };
+        members.AddRange(source.Variants.Select(v => (v.BaseFolderPath, v.BaseFolderName, v.DrFolderPath, v.DrFolderName)));
+
+        var copies = new List<(string Source, string DestName, bool Winner)>();
+        var renames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var (basePath, baseName, drPath, drName) in members)
+        {
+            if (request.UseDr && drPath is not null && drName is not null)
+            {
+                copies.Add((basePath, baseName, false));
+                copies.Add((drPath, "!" + drName, true));
+                renames[drName] = "!" + drName;
+            }
+            else
+            {
+                copies.Add((basePath, "!" + baseName, true));
+                renames[baseName] = "!" + baseName;
+            }
+        }
+
+        return (copies, renames);
+    }
+
     private static string WinningFolderName(ApplyLiveryRequest request)
     {
         if (request.Activity is { } activity)
         {
             return activity.OfficialFolderName;
+        }
+
+        if (IsCitationXFamily(request))
+        {
+            return PlanCitationXFamily(request).Copies.First(c => c.Winner).DestName;
         }
 
         var useDr = request.UseDr && request.Source.HasDr;
@@ -1022,6 +1104,13 @@ public sealed class PackageBuilder
             else
             {
                 AddFolder(request.Source.BaseFolderPath, destName);
+            }
+        }
+        else if (IsCitationXFamily(request))
+        {
+            foreach (var copy in PlanCitationXFamily(request).Copies)
+            {
+                AddFolder(copy.Source, copy.DestName);
             }
         }
         else if (useDr)
