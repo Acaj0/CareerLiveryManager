@@ -283,14 +283,15 @@ public sealed class PackageBuilder
             var baseDest = Path.Combine(vendorDestDir, request.Source.BaseFolderName);
             CopyDirectoryRecursive(request.Source.BaseFolderPath, baseDest);
 
-            var drDestName = "!" + request.Source.DrFolderName;
+            var drDestName = WinningLiveryFolderName(request.Aircraft.SimObjectName, request.Source.DrFolderName!);
             var drDest = Path.Combine(vendorDestDir, drDestName);
             CopyDirectoryRecursive(request.Source.DrFolderPath!, drDest);
 
             var drCfgPath = Path.Combine(drDest, "livery.cfg");
             if (File.Exists(drCfgPath))
             {
-                _cfgEditor.SetLiveryName(drCfgPath, "!" + StripLeadingBang(request.Source.DrFolderName!));
+                _cfgEditor.SetLiveryName(drCfgPath, WinningLiveryDisplayName(request.Aircraft.SimObjectName, request.Source.DrFolderName!));
+                AddCareerPriorityTags(request.Aircraft.SimObjectName, drCfgPath, notes);
             }
 
             var textureCfgPath = Directory.EnumerateFiles(drDest, "texture.cfg", SearchOption.AllDirectories).FirstOrDefault();
@@ -306,14 +307,15 @@ public sealed class PackageBuilder
         }
         else
         {
-            var destName = "!" + request.Source.BaseFolderName;
+            var destName = WinningLiveryFolderName(request.Aircraft.SimObjectName, request.Source.BaseFolderName);
             var dest = Path.Combine(vendorDestDir, destName);
             CopyDirectoryRecursive(request.Source.BaseFolderPath, dest);
 
             var cfgPath = Path.Combine(dest, "livery.cfg");
             if (File.Exists(cfgPath))
             {
-                _cfgEditor.SetLiveryName(cfgPath, "!" + StripLeadingBang(request.Source.BaseFolderName));
+                _cfgEditor.SetLiveryName(cfgPath, WinningLiveryDisplayName(request.Aircraft.SimObjectName, request.Source.BaseFolderName));
+                AddCareerPriorityTags(request.Aircraft.SimObjectName, cfgPath, notes);
             }
 
             if (string.Equals(request.Aircraft.SimObjectName, B737MaxSimObjectName, StringComparison.OrdinalIgnoreCase))
@@ -1067,10 +1069,51 @@ public sealed class PackageBuilder
 
         var useDr = request.UseDr && request.Source.HasDr;
         var name = useDr ? request.Source.DrFolderName! : request.Source.BaseFolderName;
-        return "!" + name;
+        return WinningLiveryFolderName(request.Aircraft.SimObjectName, name!);
     }
 
     private static string StripLeadingBang(string name) => name.TrimStart('!');
+
+    /// <summary>
+    /// Airbus aircraft whose Career screens were reported picking another livery over ours. A store
+    /// pack that does win names its folder "000000001_...", and Career's documented selection prefers
+    /// liveries tagged "Freelance" plus a licence (CAREER_LIVERY_RESEARCH.md section 19). Neither is
+    /// confirmed in-game on these aircraft yet. The official A330 is deliberately not here: it was
+    /// reported working.
+    /// </summary>
+    private static readonly HashSet<string> CareerPriorityAirbusSimObjects = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "microsoft-a320neo",
+        "microsoft-a321",
+        "a330-900", // LVFR A339
+    };
+
+    private const string AirbusDressingCodes = "COF-PCC, PRC-PCC"; // passenger transport, airliner charter
+    private const string AirbusLicenceTag = "Licence_Airline";
+
+    /// <summary>The winning livery's folder name: "!" plus the source folder name - for the Airbus
+    /// aircraft above "!000000000_" plus it, which sorts first whether or not the "!" counts. A base
+    /// folder kept only as a paint source is never renamed, so fallbacks to it still resolve.</summary>
+    private static string WinningLiveryFolderName(string simObjectName, string folderName) =>
+        CareerPriorityAirbusSimObjects.Contains(simObjectName)
+            ? "!000000000_" + StripLeadingBang(folderName)
+            : "!" + folderName;
+
+    /// <summary>The [General] Name of the winning livery: "!" plus the folder name, or "!000 " plus
+    /// it for the Airbus aircraft above.</summary>
+    private static string WinningLiveryDisplayName(string simObjectName, string folderName) =>
+        (CareerPriorityAirbusSimObjects.Contains(simObjectName) ? "!000 " : "!") + StripLeadingBang(folderName);
+
+    private void AddCareerPriorityTags(string simObjectName, string liveryCfgPath, List<string> notes)
+    {
+        if (!CareerPriorityAirbusSimObjects.Contains(simObjectName))
+        {
+            return;
+        }
+
+        _cfgEditor.SetCareerActivityTags(liveryCfgPath, AirbusDressingCodes, AirbusLicenceTag);
+        notes.Add($"Airbus: added the Career tags (Freelance, {AirbusLicenceTag}; {AirbusDressingCodes}) and the '000' sort prefix to the winning livery.");
+    }
 
     private void CollectPlannedFiles(ApplyLiveryRequest request, List<PlannedFile> files)
     {
@@ -1116,11 +1159,11 @@ public sealed class PackageBuilder
         else if (useDr)
         {
             AddFolder(request.Source.BaseFolderPath, request.Source.BaseFolderName);
-            AddFolder(request.Source.DrFolderPath!, "!" + request.Source.DrFolderName);
+            AddFolder(request.Source.DrFolderPath!, WinningLiveryFolderName(request.Aircraft.SimObjectName, request.Source.DrFolderName!));
         }
         else
         {
-            AddFolder(request.Source.BaseFolderPath, "!" + request.Source.BaseFolderName);
+            AddFolder(request.Source.BaseFolderPath, WinningLiveryFolderName(request.Aircraft.SimObjectName, request.Source.BaseFolderName));
         }
     }
 

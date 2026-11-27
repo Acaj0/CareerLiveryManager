@@ -2,6 +2,9 @@
 
 This file always lists every release, newest first, with a link to that version's full notes in [`docs/changelog/`](docs/changelog). Bookmark this page - it's the one link that always shows the current state.
 
+## [v1.3.5](docs/changelog/v1.3.5.md)
+- Changed: on the A320neo, A321 and LVFR A330-900, the livery is installed with a `!000` prefix and the Career tags, so Career should pick it over others - not yet confirmed in-game. Apply your livery again after updating. Other aircraft are unchanged.
+
 ## [v1.3.4](docs/changelog/v1.3.4.md)
 - Fixed: Cessna Citation X liveries showed the standard livery in flight even though the menu showed the custom one. The standard and winglets versions of a livery are now installed together. Citation X only.
 
