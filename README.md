@@ -10,6 +10,15 @@
   <a href="https://buymeacoffee.com/acaj0">☕ Buy me a coffee</a> · <a href="CHANGELOG.md">Changelog</a>
 </p>
 
+> [!NOTE]
+> ### 🧪 Beta: liveries for aircraft you haven't downloaded
+> We're testing applying liveries to simple aircraft (one livery for the whole plane) **without having them downloaded**. **Testers welcome!**
+>
+> - Download **vB01** (marked *Pre-release*) from the [releases page](https://github.com/Acaj0/CareerLiveryManager/releases).
+> - Read what's included, what isn't and how to report on the [`beta` branch](https://github.com/Acaj0/CareerLiveryManager/tree/beta).
+>
+> It's experimental and doesn't update itself. For everyday use, stay on the [latest stable release](https://github.com/Acaj0/CareerLiveryManager/releases/latest).
+
 ---
 
 ## What is this?
