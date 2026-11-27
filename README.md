@@ -1,3 +1,19 @@
+> [!WARNING]
+> # BETA branch (vB01): aircraft that aren't downloaded
+> This branch is **experimental**. It tests applying liveries to aircraft that are **not downloaded** (streamed by the game).
+> **For everyday use, get the stable version from the [`main` branch](../../tree/main) and its latest release.**
+>
+> **What's different**
+> - Simple aircraft (one livery for the whole plane) are listed even when they aren't in your Official folder, marked **Not downloaded · beta**.
+> - Names come from a built-in list of 51 aircraft plus what the game keeps in `StreamedPackages`. You need to own the aircraft: the list can include ones you don't have.
+> - No game images are shipped. A picture appears if the app saw the aircraft while it was downloaded, or if a Community livery for it has a thumbnail; otherwise it says "No preview".
+> - Not included: aircraft with Career activities (C172, 737 MAX, Caravan, etc.) and aircraft with their own install rules (Citation X, A320neo, A321, LVFR A330-900, PC-12). When downloaded, they work as in the stable version.
+> - The beta does **not** update itself.
+>
+> **So far:** the HondaJet and the Citation Longitude were reported working without being downloaded. The other aircraft are untested.
+>
+> **How to report:** open an [issue](https://github.com/Acaj0/CareerLiveryManager/issues) starting with `[BETA]`, with the aircraft, the livery, whether it worked in Free Flight and in Career, and the diagnostic report (*Options > Export diagnostic report*).
+
 <p align="center">
   <img src="docs/clm-logo-horizontal.svg" width="360" alt="Career Livery Manager" />
 </p>

@@ -24,6 +24,10 @@ if ($csprojContent -notmatch "<Version>([^<]+)</Version>") {
     throw "Could not find <Version> in $csprojPath"
 }
 $version = $Matches[1]
+# A beta build carries its own number (e.g. B01) as InformationalVersion.
+if ($csprojContent -match "<InformationalVersion>([^<]+)</InformationalVersion>") {
+    $version = $Matches[1]
+}
 $tag = "v$version"
 $zipName = "CareerLiveryManager-$tag-win-x64.zip"
 
@@ -58,4 +62,8 @@ Write-Host "Done." -ForegroundColor Green
 Write-Host "  Zip:      $zipPath"
 Write-Host "  Checksum: $hashPath"
 Write-Host ""
-Write-Host "Next: create a GitHub Release tagged '$tag' and upload both files as assets."
+if ($version -like "B*") {
+    Write-Host "BETA build: if you publish it on GitHub, mark the release as a PRE-RELEASE, or it reaches stable users."
+} else {
+    Write-Host "Next: create a GitHub Release tagged '$tag' and upload both files as assets."
+}

@@ -17,4 +17,9 @@
     <InternalsVisibleTo Include="CareerLiveryManager.Core.Tests" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- BETA: names of the simple aircraft that can be listed without being downloaded. -->
+    <EmbeddedResource Include="Resources\aircraft-catalog.json" LogicalName="CareerLiveryManager.Core.aircraft-catalog.json" />
+  </ItemGroup>
+
 </Project>

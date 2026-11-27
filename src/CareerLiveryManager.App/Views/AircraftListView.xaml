@@ -51,6 +51,14 @@
                                Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
                 </StackPanel>
             </RadioButton>
+            <RadioButton GroupName="AircraftFilter" Style="{StaticResource FilterChip}"
+                         Command="{Binding SetFilterCommand}" CommandParameter="{x:Static vm:AircraftFilter.NotDownloaded}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Not downloaded (beta)" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+                    <TextBlock Text="{Binding NotDownloadedCount}" FontFamily="{StaticResource MonoFont}" FontSize="10" Margin="8,1,0,0" Opacity="0.7"
+                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+                </StackPanel>
+            </RadioButton>
         </StackPanel>
 
         <!-- Explains results that look like a bug but aren't (setup validator rules S09/S10). -->
@@ -121,6 +129,13 @@
                                         BorderThickness="1" CornerRadius="4" Padding="7,2" BorderBrush="#1B4A57" Background="#0E1A1F"
                                         Visibility="{Binding ActivityCount, Converter={StaticResource CountToVisibility}}">
                                     <TextBlock Text="{Binding ActivityBadgeText}" FontFamily="{StaticResource MonoFont}" FontSize="9" Foreground="{StaticResource AccentBrush}"/>
+                                </Border>
+
+                                <Border Grid.Row="2" Margin="0,6,0,0" HorizontalAlignment="Center" VerticalAlignment="Top"
+                                        BorderThickness="1" CornerRadius="4" Padding="7,2" BorderBrush="#5A4520" Background="#1C160C"
+                                        ToolTip="Experimental: this aircraft isn't in your Official folder. The game downloads it when you open it."
+                                        Visibility="{Binding IsNotDownloaded, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="NOT DOWNLOADED · BETA" FontFamily="{StaticResource MonoFont}" FontSize="9" Foreground="{StaticResource WarningBrush}"/>
                                 </Border>
 
                                 <Button Grid.Row="4" Content="Choose" HorizontalAlignment="Center" Margin="0,10,0,0"

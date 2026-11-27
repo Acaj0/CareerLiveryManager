@@ -39,6 +39,10 @@ public sealed partial class MainViewModel : ObservableObject
         Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
         ?? UpdateService.GetCurrentVersion().ToString());
 
+    public string WindowTitle => BuildChannel.IsBeta ? "Career Livery Manager - BETA" : "Career Livery Manager";
+
+    public bool ShowUpdateOption => !BuildChannel.IsBeta;
+
     [ObservableProperty]
     private ObservableObject _currentViewModel;
 
@@ -91,7 +95,8 @@ public sealed partial class MainViewModel : ObservableObject
 
     private async Task CheckForUpdatesOnStartupAsync()
     {
-        if (!CheckForUpdatesEnabled)
+        // The beta never updates itself: the latest stable release would silently replace it.
+        if (BuildChannel.IsBeta || !CheckForUpdatesEnabled)
         {
             return;
         }

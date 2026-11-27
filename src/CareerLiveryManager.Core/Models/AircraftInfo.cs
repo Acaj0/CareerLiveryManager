@@ -12,7 +12,10 @@ public sealed class AircraftInfo
     public required string VendorPath { get; init; }
     public required string VendorName { get; init; }
     public bool IsSupported { get; init; }
-    public string? ThumbnailPath { get; init; }
+    public string? ThumbnailPath { get; set; }
+
+    /// <summary>BETA: not in the Official folder; the game streams it. The folder paths above are empty.</summary>
+    public bool IsNotDownloaded { get; init; }
 
     /// <summary>
     /// Freelance Career activities detected for this aircraft (Cargo Transport, Flightseeing, etc.),
