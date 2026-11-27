@@ -1,7 +1,12 @@
 > [!WARNING]
 > # BETA branch (vB01): aircraft that aren't downloaded
 > This branch is **experimental**. It tests applying liveries to aircraft that are **not downloaded** (streamed by the game).
-> **For everyday use, get the stable version from the [`main` branch](../../tree/main) and its latest release.**
+> **For everyday use, get the stable version from the [latest release](https://github.com/Acaj0/CareerLiveryManager/releases/latest).**
+>
+> **We want testers!** The beta is published as a **pre-release**, not a final version:
+> 1. Open the [releases page](https://github.com/Acaj0/CareerLiveryManager/releases) and download the zip of **vB01** (marked *Pre-release*).
+> 2. Close Career Livery Manager if it's open, extract the zip into a new folder and run `CareerLiveryManager.exe` from there.
+> 3. To go back, close it and open your stable version again. Packages applied with the beta stay in your Community folder; remove them under *Installed packages* if you don't want them.
 >
 > **What's different**
 > - Simple aircraft (one livery for the whole plane) are listed even when they aren't in your Official folder, marked **Not downloaded · beta**.
@@ -10,7 +15,7 @@
 > - Not included: aircraft with Career activities (C172, 737 MAX, Caravan, etc.) and aircraft with their own install rules (Citation X, A320neo, A321, LVFR A330-900, PC-12). When downloaded, they work as in the stable version.
 > - The beta does **not** update itself.
 >
-> **So far:** the HondaJet and the Citation Longitude were reported working without being downloaded. The other aircraft are untested.
+> **So far:** the HondaJet worked without being downloaded, with the livery applied by this beta, and the Citation Longitude worked in a manual test. The other aircraft are untested.
 >
 > **How to report:** open an [issue](https://github.com/Acaj0/CareerLiveryManager/issues) starting with `[BETA]`, with the aircraft, the livery, whether it worked in Free Flight and in Career, and the diagnostic report (*Options > Export diagnostic report*).
 
